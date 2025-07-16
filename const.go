@@ -1,5 +1,6 @@
 package afdian
 
+// afdian custom ec
 const (
 	ECParamsIncomplete   = 400001
 	ECTimeExpired        = 400002

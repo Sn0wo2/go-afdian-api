@@ -4,6 +4,10 @@ import (
 	"net/http"
 )
 
+// QueryOrder payload
+//
+// WARNING: Do NOT convert amounts directly to float when performing operations on money (due to floating-point precision errors)!
+// Use github.com/shopspring/decimal for handling monetary values.
 type QueryOrder struct {
 	// --- INJECTED RAW ---
 	RawResponse *http.Response `json:"-"`

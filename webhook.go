@@ -24,7 +24,8 @@ func NewWebHook(client *Client) *WebHook {
 	return wh
 }
 
-// SetCallback sets the callback function, must implement idempotent logic
+// SetCallback
+// Must implement idempotent logic
 func (wh *WebHook) SetCallback(callback CallBack) {
 	wh.callback = callback
 }

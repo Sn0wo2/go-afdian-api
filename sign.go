@@ -13,7 +13,7 @@ import (
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
 )
 
-// publicKeyPEM Afdian public key
+// publicKeyPEM afdian public key
 const publicKeyPEM = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwwdaCg1Bt+UKZKs0R54y
 lYnuANma49IpgoOwNmk3a0rhg/PQuhUJ0EOZSowIC44l0K3+fqGns3Ygi4AfmEfS
@@ -24,7 +24,7 @@ jRlgSRaf/Ind46vMCm3N2sgwxu/g3bnooW+db0iLo13zzuvyn727Q3UDQ0MmZcEW
 MQIDAQAB
 -----END PUBLIC KEY-----`
 
-// WebHookSignVerify verify webhook signature
+// WebHookSignVerify
 // if the signature is valid, return nil
 func WebHookSignVerify(p *payload.WebHook) error {
 	if p.Data.Sign == "" {
@@ -61,7 +61,7 @@ func WebHookSignVerify(p *payload.WebHook) error {
 	return rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed.Sum(nil), sigBytes)
 }
 
-// APISignParams performs MD5 signature on parameters
+// APISignParams performs MD5 signature on API parameters
 //
 // https://afdian.com/p/9c65d9cc617011ed81c352540025c377
 func APISignParams(userID, apiToken string, params []byte, ts int64) (string, error) {

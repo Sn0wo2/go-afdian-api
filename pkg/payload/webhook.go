@@ -4,9 +4,10 @@ import (
 	"net/http"
 )
 
-// WebHook Payload
+// WebHook payload
 //
-// WARNING: 对金额进行操作时禁止直接转换成float(浮点误差)! 使用 github.com/shopspring/decimal 操作金额
+// WARNING: Do NOT convert amounts directly to float when performing operations on money (due to floating-point precision errors)!
+// Use github.com/shopspring/decimal for handling monetary values.
 type WebHook struct {
 	// --- RAW ---
 	RawRequest *http.Request `json:"-"`

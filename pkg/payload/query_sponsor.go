@@ -4,6 +4,10 @@ import (
 	"net/http"
 )
 
+// QuerySponsor payload
+//
+// WARNING: Do NOT convert amounts directly to float when performing operations on money (due to floating-point precision errors)!
+// Use github.com/shopspring/decimal for handling monetary values.
 type QuerySponsor struct {
 	// --- INJECTED RAW ---
 	RawResponse *http.Response `json:"-"`

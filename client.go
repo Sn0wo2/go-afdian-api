@@ -20,8 +20,8 @@ func NewClient(cfg *Config, hc ...*http.Client) *Client {
 	return &Client{cfg: cfg, HTTP: h}
 }
 
-// Send sends an API request
-// WARNING 注意资源泄漏, 调用后请及时关闭
+// Send an API request
+// WARNING: Be aware of potential resource leaks
 func (c *Client) Send(path string, params map[string]string) (*http.Response, error) {
 	p, err := NewParamsBuilder(c, params).Build()
 	if err != nil {
