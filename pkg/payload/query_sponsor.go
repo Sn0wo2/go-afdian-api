@@ -1,6 +1,14 @@
 package payload
 
+import (
+	"net/http"
+)
+
 type QuerySponsor struct {
+	// --- INJECTED RAW ---
+	RawResponse *http.Response `json:"-"`
+
+	// --- PAYLOAD ---
 	APIBase
 	Data *struct {
 		TotalCount int `json:"total_count,omitempty"`

@@ -1,6 +1,14 @@
 package payload
 
+import (
+	"net/http"
+)
+
 type QueryRandomReply struct {
+	// --- INJECTED RAW ---
+	RawResponse *http.Response `json:"-"`
+
+	// --- PAYLOAD ---
 	APIBase
 	Data *struct {
 		List []struct {

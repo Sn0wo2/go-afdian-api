@@ -1,6 +1,14 @@
 package payload
 
+import (
+	"net/http"
+)
+
 type Ping struct {
+	// --- INJECTED RAW ---
+	RawResponse *http.Response `json:"-"`
+
+	// --- PAYLOAD ---
 	APIBase
 	Data *struct {
 		Uid     string `json:"uid,omitempty"`
