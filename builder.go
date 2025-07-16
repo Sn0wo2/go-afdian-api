@@ -1,52 +1,50 @@
 package afdian
 
 import (
-	"crypto/md5"
-	"fmt"
 	"time"
 
 	"github.com/Sn0wo2/go-afdian-api/internal/helper"
 	"github.com/json-iterator/go"
 )
 
-type ParamsBuilder interface {
-	Build() []byte
-}
-
-type builder struct {
+type ParamsBuilder struct {
 	client *Client
-	params map[string]string
+	Params map[string]string
 }
 
-func NewParamsBuilder(client *Client, params map[string]string) ParamsBuilder {
-	return &builder{
+func NewParamsBuilder(client *Client, params map[string]string) *ParamsBuilder {
+	return &ParamsBuilder{
 		client: client,
-		params: params,
+		Params: params,
 	}
 }
 
-func (b *builder) Build() []byte {
-	paramsJSON, err := jsoniter.Marshal(b.params)
+type params struct {
+	UserID string `json:"user_id"`
+	Params string `json:"params"`
+	Ts     int64  `json:"ts"`
+	Sign   string `json:"sign"`
+}
+
+func (b *ParamsBuilder) Build() ([]byte, error) {
+	paramsJSON, err := jsoniter.Marshal(b.Params)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	ts := time.Now().Unix()
-
-	type Pl struct {
-		UserID string `json:"user_id"`
-		Params string `json:"params"`
-		Ts     int64  `json:"ts"`
-		Sign   string `json:"sign"`
+	sign, err := APISignParams(b.client.cfg.UserID, b.client.cfg.APIToken, paramsJSON, ts)
+	if err != nil {
+		return nil, err
 	}
-	plJSON, err := jsoniter.Marshal(Pl{
+	pJSON, err := jsoniter.Marshal(params{
 		UserID: b.client.cfg.UserID,
 		Params: helper.BytesToString(paramsJSON),
 		Ts:     ts,
-		Sign:   fmt.Sprintf("%x", md5.Sum(helper.StringToBytes(fmt.Sprintf("%sparams%sts%duser_id%s", b.client.cfg.APIToken, helper.BytesToString(paramsJSON), ts, b.client.cfg.UserID)))),
+		Sign:   sign,
 	})
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return plJSON
+	return pJSON, err
 }
