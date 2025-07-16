@@ -18,6 +18,19 @@ type QuerySponsor struct {
 		TotalCount int `json:"total_count,omitempty"`
 		TotalPage  int `json:"total_page,omitempty"`
 		List       []struct {
+			// --- ERROR ---
+			Explain string `json:"explain,omitempty"`
+			Debug   *struct {
+				KvString string `json:"kv_string,omitempty"`
+			} `json:"debug,omitempty"`
+			Request *struct {
+				UserId string `json:"user_id,omitempty"`
+				Params string `json:"params,omitempty"`
+				Ts     int    `json:"ts,omitempty"`
+				Sign   string `json:"sign,omitempty"`
+			} `json:"request,omitempty"`
+
+			// --- NORMAL ---
 			SponsorPlans []struct {
 				PlanId         string `json:"plan_id,omitempty"`
 				Rank           int    `json:"rank,omitempty"`
