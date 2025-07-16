@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/Sn0wo2/go-afdian-api/internal/sign"
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
 	"github.com/json-iterator/go"
 )
@@ -32,8 +33,9 @@ func (wh *WebHook) SetCallback(callback CallBack) {
 
 func (wh *WebHook) Start() error {
 	if wh.client.cfg.WebHookListenAddr == "" {
-		return nil
+		return fmt.Errorf("WebHookListenAddr is empty")
 	}
+
 	server := http.Server{
 		Addr:    wh.client.cfg.WebHookListenAddr,
 		Handler: wh.resolve(),
@@ -113,7 +115,7 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 			return
 		}
 
-		if err := WebHookSignVerify(p); err != nil {
+		if err := sign.WebHookSignVerify(p); err != nil {
 			go runCallback(p, fmt.Errorf("invalid sign: %s", p.Data.Sign), err)
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusBadRequest, Em: "Bad request"}})
 			return
