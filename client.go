@@ -32,9 +32,6 @@ func (c *Client) Send(path string, params map[string]string) (*http.Response, er
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HTTP.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+
+	return c.HTTP.Do(req)
 }
