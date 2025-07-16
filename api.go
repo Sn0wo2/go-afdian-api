@@ -23,7 +23,7 @@ func (c *Client) Ping() (*payload.Ping, error) {
 		return p, err
 	}
 
-	if err = jsoniter.Unmarshal(raw, p); err != nil {
+	if err := jsoniter.Unmarshal(raw, p); err != nil {
 		return p, err
 	}
 	return p, nil
