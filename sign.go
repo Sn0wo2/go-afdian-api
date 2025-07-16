@@ -8,11 +8,9 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"time"
 
 	"github.com/Sn0wo2/go-afdian-api/internal/helper"
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
-	"github.com/json-iterator/go"
 )
 
 // publicKeyPEM Afdian public key
@@ -26,28 +24,30 @@ jRlgSRaf/Ind46vMCm3N2sgwxu/g3bnooW+db0iLo13zzuvyn727Q3UDQ0MmZcEW
 MQIDAQAB
 -----END PUBLIC KEY-----`
 
-func WebHookSignVerify(p *payload.WebHook) bool {
+// WebHookSignVerify verify webhook signature
+// if the signature is valid, return nil
+func WebHookSignVerify(p *payload.WebHook) error {
 	if p.Data.Sign == "" {
-		return false
+		return fmt.Errorf("sign is empty")
 	}
 
 	sigBytes, err := base64.StdEncoding.DecodeString(p.Data.Sign)
 	if err != nil {
-		return false
+		return err
 	}
 
 	block, _ := pem.Decode(helper.StringToBytes(publicKeyPEM))
 	if block == nil || block.Type != "PUBLIC KEY" {
-		return false
+		return fmt.Errorf("invalid public key")
 	}
 
 	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		return false
+		return err
 	}
 	pubKey, ok := pubInterface.(*rsa.PublicKey)
 	if !ok {
-		return false
+		return fmt.Errorf("invalid public key")
 	}
 
 	order := p.Data.Order
@@ -58,16 +58,12 @@ func WebHookSignVerify(p *payload.WebHook) bool {
 		order.PlanId +
 		order.TotalAmount))
 
-	return rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed.Sum(nil), sigBytes) != nil
+	return rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed.Sum(nil), sigBytes)
 }
 
 // APISignParams performs MD5 signature on parameters
 //
 // https://afdian.com/p/9c65d9cc617011ed81c352540025c377
-func APISignParams(userID, apiToken string, params map[string]string, ts *time.Time) (string, error) {
-	paramsJSON, err := jsoniter.Marshal(params)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", md5.Sum(helper.StringToBytes(fmt.Sprintf("%sparams%sts%duser_id%s", apiToken, helper.BytesToString(paramsJSON), ts.Unix(), userID)))), nil
+func APISignParams(userID, apiToken string, params []byte, ts int64) (string, error) {
+	return fmt.Sprintf("%x", md5.Sum(helper.StringToBytes(fmt.Sprintf("%sparams%sts%duser_id%s", apiToken, helper.BytesToString(params), ts, userID)))), nil
 }

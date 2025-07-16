@@ -71,52 +71,52 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 			wh.callback(p, filtered...)
 		}
 
+		p := &payload.WebHook{}
+		p.RawRequest = r
+
 		if r.URL.Path != wh.client.cfg.WebHookPath {
-			go runCallback(nil, fmt.Errorf("invalid path: %s", r.URL.Path))
+			go runCallback(p, fmt.Errorf("invalid path: %s", r.URL.Path))
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusNotFound, Em: "Not found"}})
 			return
 		}
 
 		if r.URL.Query().Get("auth") != wh.client.cfg.WebHookQueryToken {
-			go runCallback(nil, fmt.Errorf("invalid token: %s", r.URL.Query().Get("auth")))
+			go runCallback(p, fmt.Errorf("invalid token: %s", r.URL.Query().Get("auth")))
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusUnauthorized, Em: "Unauthorized"}})
 			return
 		}
 
 		if r.Method != http.MethodPost {
-			go runCallback(nil, fmt.Errorf("invalid method: %s", r.Method))
+			go runCallback(p, fmt.Errorf("invalid method: %s", r.Method))
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusMethodNotAllowed, Em: "Method not allowed"}})
 			return
 		}
 
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			go runCallback(nil, err)
+			go runCallback(p, err)
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusInternalServerError, Em: "Internal server error"}})
+			return
+		}
+		if len(raw) == 0 {
+			go runCallback(p, fmt.Errorf("empty request body"))
+			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusBadRequest, Em: "Bad request"}})
 			return
 		}
 
 		r.Body = io.NopCloser(bytes.NewReader(raw))
-		if len(raw) == 0 {
-			go runCallback(nil, fmt.Errorf("empty request body"))
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusBadRequest, Em: "Bad request"}})
-			return
-		}
 
-		p := &payload.WebHook{}
 		if err := jsoniter.Unmarshal(raw, p); err != nil {
-			go runCallback(nil, err)
+			go runCallback(p, err)
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusInternalServerError, Em: "Internal server error"}})
 			return
 		}
 
-		if WebHookSignVerify(p) {
-			go runCallback(nil, fmt.Errorf("invalid sign: %s", p.Data.Sign))
+		if err := WebHookSignVerify(p); err != nil {
+			go runCallback(p, fmt.Errorf("invalid sign: %s", p.Data.Sign), err)
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusBadRequest, Em: "Bad request"}})
 			return
 		}
-
-		p.RawRequest = r
 
 		go runCallback(p, nil)
 		_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusOK, Em: "OK"}})
