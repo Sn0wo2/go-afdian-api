@@ -1,7 +1,6 @@
 module github.com/Sn0wo2/go-afdian-api
 
-// 1.24.5
-go 1.24
+go 1.24.5
 
 require github.com/json-iterator/go v1.1.12
 

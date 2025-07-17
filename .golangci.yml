@@ -1,0 +1,102 @@
+version: "2"
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - nilnesserr
+    - sqlclosecheck
+    - errchkjson
+    - musttag
+    - goconst
+    - gocritic
+    - prealloc
+    - thelper
+    - paralleltest
+    - durationcheck
+    - gosmopolitan
+    - whitespace
+    - tagalign
+    - dupl
+    - nolintlint
+    - maintidx
+    - wsl
+    - decorder
+    - asciicheck
+    - bidichk
+    - forbidigo
+    - testifylint
+    - zerologlint
+    - asasalint
+    - bodyclose
+    - canonicalheader
+    - contextcheck
+    - copyloopvar
+    - dupword
+    - errname
+    - errorlint
+    - exptostd
+    - fatcontext
+    - forcetypeassert
+    - funcorder
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecksumtype
+    - gomoddirectives
+    - goprintffuncname
+    - importas
+    - inamedparam
+    - intrange
+    - loggercheck
+    - makezero
+    - mirror
+    - nakedret
+    - nilerr
+    - nilnil
+    - nlreturn
+    - nosprintfhostport
+    - perfsprint
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - rowserrcheck
+    - sloglint
+    - spancheck
+    - tagliatelle
+    - testableexamples
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - usetesting
+    - wastedassign
+    - exhaustive
+    - goheader
+    - grouper
+    - iface
+    - interfacebloat
+    - misspell
+    - tparallel
+
+run:
+  tests: true
+  concurrency: 4
+  timeout: 5m
+  issues-exit-code: 1
+  modules-download-mode: readonly
+
+issues:
+  max-issues-per-linter: 0
+  uniq-by-line: true
+  fix: true
+
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+    - gofmt
+

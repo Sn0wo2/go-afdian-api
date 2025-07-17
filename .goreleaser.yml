@@ -1,0 +1,34 @@
+version: 2
+project_name: go-afdian-api
+
+changelog:
+  disable: false
+  use: github
+  sort: asc
+  groups:
+    - title: "🚀 Features"
+      regexp: "^.*feat(?:\\([^)]+\\))?:+.*$"
+      order: 0
+    - title: "🐛 Bug Fixes"
+      regexp: "^.*fix(?:\\([^)]+\\))?:+.*$"
+      order: 1
+    - title: "⚡️ Performance Improvements"
+      regexp: "^.*perf(?:\\([^)]+\\))?:+.*$"
+      order: 2
+    - title: "📝 Documentation"
+      regexp: "^.*docs(?:\\([^)]+\\))?:+.*$"
+      order: 3
+    - title: "🔧 Maintenance & Chores"
+      regexp: "^.*chore(?:\\([^)]+\\))?:+.*$"
+      order: 4
+    - title: "♻️ Code Refactoring"
+      regexp: "^.*refactor(?:\\([^)]+\\))?:+.*$"
+      order: 5
+    - title: "🧪 Tests"
+      regexp: "^.*test(?:\\([^)]+\\))?:+.*$"
+      order: 6
+    - title: "📦 Dependency Updates"
+      regexp: "^.*deps(?:\\([^)]+\\))?:+.*$"
+      order: 7
+    - title: "📍 Others"
+      order: 999
