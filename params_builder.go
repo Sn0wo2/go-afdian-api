@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/Sn0wo2/go-afdian-api/internal/helper"
-	sign2 "github.com/Sn0wo2/go-afdian-api/internal/sign"
+	"github.com/Sn0wo2/go-afdian-api/internal/sign"
 	"github.com/json-iterator/go"
 )
 
@@ -14,7 +14,7 @@ type ParamsBuilder struct {
 	Params map[any]any
 }
 
-func NewParamsBuilder(client *Client, params map[any]any) *ParamsBuilder {
+func newParamsBuilder(client *Client, params map[any]any) *ParamsBuilder {
 	return &ParamsBuilder{
 		client: client,
 		Params: params,
@@ -35,7 +35,7 @@ func (b *ParamsBuilder) Build() ([]byte, error) {
 	}
 
 	ts := time.Now().Unix()
-	sign, err := sign2.APISignParams(b.client.cfg.UserID, b.client.cfg.APIToken, paramsJSON, ts)
+	s, err := sign.APISignParams(b.client.cfg.UserID, b.client.cfg.APIToken, paramsJSON, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (b *ParamsBuilder) Build() ([]byte, error) {
 		UserID: b.client.cfg.UserID,
 		Params: helper.BytesToString(paramsJSON),
 		Ts:     ts,
-		Sign:   sign,
+		Sign:   s,
 	})
 	if err != nil {
 		return nil, err

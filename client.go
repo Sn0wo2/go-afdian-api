@@ -23,7 +23,7 @@ func NewClient(cfg *Config, hc ...*http.Client) *Client {
 // Send an API request
 // WARNING: Be aware of potential resource leaks
 func (c *Client) Send(path string, params map[any]any) (*http.Response, error) {
-	p, err := NewParamsBuilder(c, params).Build()
+	p, err := newParamsBuilder(c, params).Build()
 	if err != nil {
 		return nil, err
 	}
