@@ -10,5 +10,4 @@ type Config struct {
 	// WebHook configuration
 	WebHookListenAddr string
 	WebHookPath       string
-	WebHookQueryToken string
 }

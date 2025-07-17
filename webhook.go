@@ -83,12 +83,6 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 			return
 		}
 
-		if r.URL.Query().Get("auth") != wh.client.cfg.WebHookQueryToken {
-			go runCallback(p, fmt.Errorf("invalid token: %s", r.URL.Query().Get("auth")))
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusUnauthorized, Em: "Unauthorized"}})
-			return
-		}
-
 		if r.Method != http.MethodPost {
 			go runCallback(p, fmt.Errorf("invalid method: %s", r.Method))
 			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusMethodNotAllowed, Em: "Method not allowed"}})
