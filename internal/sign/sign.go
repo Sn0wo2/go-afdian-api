@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
 
 	"github.com/Sn0wo2/go-afdian-api/internal/helper"
@@ -28,7 +29,7 @@ MQIDAQAB
 // if the signature is valid, return nil
 func WebHookSignVerify(p *payload.WebHook) error {
 	if p.Data.Sign == "" {
-		return fmt.Errorf("sign is empty")
+		return errors.New("sign is empty")
 	}
 
 	sigBytes, err := base64.StdEncoding.DecodeString(p.Data.Sign)
@@ -38,16 +39,17 @@ func WebHookSignVerify(p *payload.WebHook) error {
 
 	block, _ := pem.Decode(helper.StringToBytes(publicKeyPEM))
 	if block == nil || block.Type != "PUBLIC KEY" {
-		return fmt.Errorf("invalid public key")
+		return errors.New("invalid public key")
 	}
 
 	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return err
 	}
+
 	pubKey, ok := pubInterface.(*rsa.PublicKey)
 	if !ok {
-		return fmt.Errorf("invalid public key")
+		return errors.New("invalid public key")
 	}
 
 	order := p.Data.Order
