@@ -23,7 +23,7 @@ type QuerySponsor struct {
 
 		// --- NORMAL ---
 		Request *struct {
-			UserId string `json:"user_id,omitempty"`
+			UserID string `json:"user_id,omitempty"`
 			Params string `json:"params,omitempty"`
 			Ts     int    `json:"ts,omitempty"`
 			Sign   string `json:"sign,omitempty"`
@@ -33,9 +33,9 @@ type QuerySponsor struct {
 		TotalPage  int `json:"total_page,omitempty"`
 		List       []struct {
 			SponsorPlans []struct {
-				PlanId         string `json:"plan_id,omitempty"`
+				PlanID         string `json:"plan_id,omitempty"`
 				Rank           int    `json:"rank,omitempty"`
-				UserId         string `json:"user_id,omitempty"`
+				UserID         string `json:"user_id,omitempty"`
 				Status         int    `json:"status,omitempty"`
 				Name           string `json:"name,omitempty"`
 				Pic            string `json:"pic,omitempty"`
@@ -57,9 +57,9 @@ type QuerySponsor struct {
 			} `json:"sponsor_plans,omitempty"`
 			CurrentPlan *struct {
 				Name           string `json:"name,omitempty"`
-				PlanId         string `json:"plan_id,omitempty"`
+				PlanID         string `json:"plan_id,omitempty"`
 				Rank           int    `json:"rank,omitempty"`
-				UserId         string `json:"user_id,omitempty"`
+				UserID         string `json:"user_id,omitempty"`
 				Status         int    `json:"status,omitempty"`
 				Pic            string `json:"pic,omitempty"`
 				Desc           string `json:"desc,omitempty"`
@@ -84,10 +84,10 @@ type QuerySponsor struct {
 			CreateTime   int    `json:"create_time,omitempty"`
 			LastPayTime  int    `json:"last_pay_time,omitempty"`
 			User         *struct {
-				UserId        string `json:"user_id,omitempty"`
+				UserID        string `json:"user_id,omitempty"`
 				Name          string `json:"name,omitempty"`
 				Avatar        string `json:"avatar,omitempty"`
-				UserPrivateId string `json:"user_private_id,omitempty"`
+				UserPrivateID string `json:"user_private_id,omitempty"`
 			} `json:"user,omitempty"`
 		} `json:"list,omitempty"`
 	} `json:"data,omitempty"`

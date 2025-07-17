@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/Sn0wo2/go-afdian-api/internal/sign"
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
@@ -16,7 +17,7 @@ type CallBack func(p *payload.WebHook, errs ...error)
 
 type WebHook struct {
 	client     *Client
-	HttpServer *http.Server
+	HTTPServer *http.Server
 	callback   CallBack
 }
 
@@ -39,11 +40,12 @@ func (wh *WebHook) Start() error {
 	}
 
 	server := http.Server{
-		Addr:    wh.client.cfg.WebHookListenAddr,
-		Handler: wh.resolve(),
+		Addr:              wh.client.cfg.WebHookListenAddr,
+		Handler:           wh.resolve(),
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	wh.HttpServer = &server
+	wh.HTTPServer = &server
 
 	return server.ListenAndServe()
 }

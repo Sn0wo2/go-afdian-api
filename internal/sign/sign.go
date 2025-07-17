@@ -2,7 +2,7 @@ package sign
 
 import (
 	"crypto"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
@@ -56,8 +56,8 @@ func WebHookSignVerify(p *payload.WebHook) error {
 
 	hashed := crypto.SHA256.New()
 	hashed.Write(helper.StringToBytes(order.OutTradeNo +
-		order.UserId +
-		order.PlanId +
+		order.UserID +
+		order.PlanID +
 		order.TotalAmount))
 
 	return rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed.Sum(nil), sigBytes)
@@ -67,5 +67,5 @@ func WebHookSignVerify(p *payload.WebHook) error {
 //
 // https://afdian.com/p/9c65d9cc617011ed81c352540025c377
 func APISignParams(userID, apiToken string, params []byte, ts int64) (string, error) {
-	return fmt.Sprintf("%x", md5.Sum(helper.StringToBytes(fmt.Sprintf("%sparams%sts%duser_id%s", apiToken, helper.BytesToString(params), ts, userID)))), nil
+	return fmt.Sprintf("%x", md5.Sum(helper.StringToBytes(fmt.Sprintf("%sparams%sts%duser_id%s", apiToken, helper.BytesToString(params), ts, userID)))), nil //nolint:gosec
 }

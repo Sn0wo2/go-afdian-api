@@ -38,20 +38,20 @@ type QueryOrder struct {
 			ShowAmount  string `json:"show_amount,omitempty"`
 			Status      int    `json:"status,omitempty"`
 			Remark      string `json:"remark,omitempty"`
-			RedeemId    string `json:"redeem_id,omitempty"`
+			RedeemID    string `json:"redeem_id,omitempty"`
 			ProductType int    `json:"product_type,omitempty"`
 			Discount    string `json:"discount,omitempty"`
 			SkuDetail   []struct {
-				SkuId   string `json:"sku_id,omitempty"`
+				SkuID   string `json:"sku_id,omitempty"`
 				Count   int    `json:"count,omitempty"`
 				Name    string `json:"name,omitempty"`
-				AlbumId string `json:"album_id,omitempty"`
+				AlbumID string `json:"album_id,omitempty"`
 				Pic     string `json:"pic,omitempty"`
 			} `json:"sku_detail,omitempty"`
 			CreateTime     int    `json:"create_time,omitempty"`
 			UserName       string `json:"user_name,omitempty"`
 			PlanTitle      string `json:"plan_title,omitempty"`
-			UserPrivateId  string `json:"user_private_idm,omitempty"`
+			UserPrivateID  string `json:"user_private_idm,omitempty"`
 			AddressPerson  string `json:"address_person,omitempty"`
 			AddressPhone   string `json:"address_phone,omitempty"`
 			AddressAddress string `json:"address_address,omitempty"`

@@ -2,41 +2,23 @@ version: "2"
 
 linters:
   enable:
-    - govet
-    - errcheck
-    - staticcheck
-    - unused
-    - nilnesserr
-    - sqlclosecheck
-    - errchkjson
-    - musttag
-    - goconst
-    - gocritic
-    - prealloc
-    - thelper
-    - paralleltest
-    - durationcheck
-    - gosmopolitan
-    - whitespace
-    - tagalign
-    - dupl
-    - nolintlint
-    - maintidx
-    - wsl
-    - decorder
+    - asasalint
     - asciicheck
     - bidichk
-    - forbidigo
-    - testifylint
-    - zerologlint
-    - asasalint
     - bodyclose
     - canonicalheader
     - contextcheck
     - copyloopvar
+    - decorder
+    - dogsled
+    - dupl
     - dupword
+    - durationcheck
+    - errcheck
+    - errchkjson
     - errname
     - errorlint
+    - exhaustive
     - exptostd
     - fatcontext
     - forcetypeassert
@@ -44,41 +26,57 @@ linters:
     - ginkgolinter
     - gocheckcompilerdirectives
     - gochecksumtype
-    - gomoddirectives
+    - goheader
+    - gocritic
+    - goconst
+    - gosec
+    - gosmopolitan
     - goprintffuncname
+    - grouper
+    - ineffassign
     - importas
     - inamedparam
+    - interfacebloat
+    - iface
     - intrange
     - loggercheck
+    - maintidx
     - makezero
     - mirror
-    - nakedret
+    - misspell
+    - musttag
     - nilerr
+    - nilnesserr
     - nilnil
     - nlreturn
+    - nolintlint
     - nosprintfhostport
+    - paralleltest
     - perfsprint
+    - prealloc
     - predeclared
     - promlinter
     - protogetter
-    - reassign
     - recvcheck
+    - reassign
     - rowserrcheck
     - sloglint
     - spancheck
+    - staticcheck
+    - tagalign
     - testableexamples
+    - testifylint
+    - thelper
+    - tparallel
     - unconvert
     - unparam
+    - unused
     - usestdlibvars
     - usetesting
     - wastedassign
-    - exhaustive
-    - goheader
-    - grouper
-    - iface
-    - interfacebloat
-    - misspell
-    - tparallel
+    - whitespace
+    - wsl
+    - zerologlint
 
 run:
   tests: true
@@ -95,7 +93,6 @@ issues:
 formatters:
   enable:
     - gci
+    - gofmt
     - gofumpt
     - goimports
-    - gofmt
-
