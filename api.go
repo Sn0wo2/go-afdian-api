@@ -27,6 +27,7 @@ func (c *Client) Ping() (*payload.Ping, error) {
 	if err := jsoniter.Unmarshal(raw, p); err != nil {
 		return p, err
 	}
+
 	return p, nil
 }
 
@@ -47,6 +48,7 @@ func (c *Client) QueryRandomReply(outTradeNo ...string) (*payload.QueryRandomRep
 	if err := jsoniter.Unmarshal(raw, qrr); err != nil {
 		return qrr, err
 	}
+
 	return qrr, nil
 }
 
@@ -67,6 +69,7 @@ func (c *Client) QueryOrder(page, perPage int, outTradeNo ...string) (*payload.Q
 	if err := jsoniter.Unmarshal(raw, qo); err != nil {
 		return qo, err
 	}
+
 	return qo, nil
 }
 
@@ -87,5 +90,6 @@ func (c *Client) QuerySponsor(page, perPage int, outTradeNo ...string) (*payload
 	if err := jsoniter.Unmarshal(raw, qs); err != nil {
 		return qs, err
 	}
+
 	return qs, nil
 }
