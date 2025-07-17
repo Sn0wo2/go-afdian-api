@@ -1,6 +1,7 @@
 package afdian
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Sn0wo2/go-afdian-api/internal/helper"
@@ -10,10 +11,10 @@ import (
 
 type ParamsBuilder struct {
 	client *Client
-	Params map[string]string
+	Params map[any]any
 }
 
-func NewParamsBuilder(client *Client, params map[string]string) *ParamsBuilder {
+func NewParamsBuilder(client *Client, params map[any]any) *ParamsBuilder {
 	return &ParamsBuilder{
 		client: client,
 		Params: params,
@@ -21,7 +22,14 @@ func NewParamsBuilder(client *Client, params map[string]string) *ParamsBuilder {
 }
 
 func (b *ParamsBuilder) Build() ([]byte, error) {
-	paramsJSON, err := jsoniter.Marshal(b.Params)
+	p := make(map[string]string, len(b.Params))
+	for k, v := range b.Params {
+		if k == nil || k == "" || v == nil || v == "" {
+			continue
+		}
+		p[fmt.Sprint(k)] = fmt.Sprint(v)
+	}
+	paramsJSON, err := jsoniter.Marshal(p)
 	if err != nil {
 		return nil, err
 	}
