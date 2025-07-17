@@ -20,7 +20,7 @@ type Ping struct {
 
 		// --- NORMAL ---
 		Request *struct {
-			UserId string `json:"user_id,omitempty"`
+			UserID string `json:"user_id,omitempty"`
 			Params string `json:"params,omitempty"`
 			Ts     int    `json:"ts,omitempty"`
 			Sign   string `json:"sign,omitempty"`
