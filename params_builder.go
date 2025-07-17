@@ -9,19 +9,19 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type ParamsBuilder struct {
+type paramsBuilder struct {
 	client *Client
 	Params map[any]any
 }
 
-func newParamsBuilder(client *Client, params map[any]any) *ParamsBuilder {
-	return &ParamsBuilder{
+func newParamsBuilder(client *Client, params map[any]any) *paramsBuilder {
+	return &paramsBuilder{
 		client: client,
 		Params: params,
 	}
 }
 
-func (b *ParamsBuilder) Build() ([]byte, error) {
+func (b *paramsBuilder) Build() ([]byte, error) {
 	p := make(map[string]string, len(b.Params))
 
 	for k, v := range b.Params {
