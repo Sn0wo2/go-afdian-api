@@ -18,6 +18,8 @@ func NewClient(cfg *Config, hc ...*http.Client) *Client {
 		h = hc[0]
 	}
 
+	cfg.Default()
+
 	return &Client{cfg: cfg, HTTP: h}
 }
 
