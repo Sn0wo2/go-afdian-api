@@ -16,6 +16,7 @@ func (c *Config) Default() {
 	if c.BaseURL == "" {
 		c.BaseURL = "https://afdian.com/api"
 	}
+
 	if c.WebHookListenAddr != "" && c.WebHookPath == "" {
 		c.WebHookPath = "/"
 	}
