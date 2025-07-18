@@ -13,14 +13,16 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
+// CallBack for WebHook.
 type CallBack func(p *payload.WebHook, errs ...error)
 
+// WebHook handler
 type WebHook struct {
 	client     *Client
 	HTTPServer *http.Server
-	callback   CallBack
 }
 
+// NewWebHook creates a new WebHook handler.
 func NewWebHook(client *Client) *WebHook {
 	wh := &WebHook{client: client}
 	client.WebHook = wh
@@ -28,12 +30,7 @@ func NewWebHook(client *Client) *WebHook {
 	return wh
 }
 
-// SetCallback
-// Must implement idempotent logic
-func (wh *WebHook) SetCallback(callback CallBack) {
-	wh.callback = callback
-}
-
+// Start the WebHook server
 func (wh *WebHook) Start() error {
 	if wh.client.cfg.WebHookListenAddr == "" {
 		return errors.New("WebHookListenAddr is empty")
@@ -54,69 +51,35 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		writeResponse := func(wp *payload.WebHook) error {
-			if wp.Ec != 0 {
-				w.WriteHeader(wp.Ec)
-			}
-
-			data, err := jsoniter.Marshal(wp)
-			if err != nil {
-				return err
-			}
-
-			_, err = w.Write(data)
-
-			return err
-		}
-
-		runCallback := func(p *payload.WebHook, errs ...error) {
-			if wh.callback == nil {
-				return
-			}
-
-			filtered := make([]error, 0, len(errs))
-
-			for _, e := range errs {
-				if e != nil {
-					filtered = append(filtered, e)
-				}
-			}
-
-			wh.callback(p, filtered...)
-		}
-
 		p := &payload.WebHook{}
 		p.RawRequest = r
 
-		if r.URL.Path != wh.client.cfg.WebHookPath {
-			go runCallback(p, fmt.Errorf("invalid path: %s", r.URL.Path))
+		handleErr := func(err error, code int, msg string) {
+			go wh.runCallback(p, err)
+			_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{Ec: code, Em: msg}})
+		}
 
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusNotFound, Em: "Not found"}})
+		if r.URL.Path != wh.client.cfg.WebHookPath {
+			handleErr(fmt.Errorf("invalid path: %s", r.URL.Path), http.StatusNotFound, "Not found")
 
 			return
 		}
 
 		if r.Method != http.MethodPost {
-			go runCallback(p, fmt.Errorf("invalid method: %s", r.Method))
-
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusMethodNotAllowed, Em: "Method not allowed"}})
+			handleErr(fmt.Errorf("invalid method: %s", r.Method), http.StatusMethodNotAllowed, "Method not allowed")
 
 			return
 		}
 
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			go runCallback(p, err)
-
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusInternalServerError, Em: "Internal server error"}})
+			handleErr(err, http.StatusInternalServerError, "Internal server error")
 
 			return
 		}
 
 		if len(raw) == 0 {
-			go runCallback(p, errors.New("empty request body"))
-
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusBadRequest, Em: "Bad request"}})
+			handleErr(errors.New("empty request body"), http.StatusBadRequest, "Bad request")
 
 			return
 		}
@@ -124,23 +87,50 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 		r.Body = io.NopCloser(bytes.NewReader(raw))
 
 		if err := jsoniter.Unmarshal(raw, p); err != nil {
-			go runCallback(p, err)
-
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusInternalServerError, Em: "Internal server error"}})
+			handleErr(err, http.StatusInternalServerError, "Internal server error")
 
 			return
 		}
 
 		if err := sign.WebHookSignVerify(p); err != nil {
-			go runCallback(p, fmt.Errorf("invalid sign: %s", p.Data.Sign), err)
-
-			_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusBadRequest, Em: "Bad request"}})
+			handleErr(fmt.Errorf("invalid sign: %s", p.Data.Sign), http.StatusBadRequest, "Bad request")
 
 			return
 		}
 
-		go runCallback(p, nil)
+		go wh.runCallback(p, nil)
 
-		_ = writeResponse(&payload.WebHook{Base: payload.Base{Ec: http.StatusOK, Em: "OK"}})
+		_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{Ec: http.StatusOK, Em: "OK"}})
 	}
+}
+
+func (wh *WebHook) runCallback(p *payload.WebHook, errs ...error) {
+	if wh.client.cfg.WebHookCallback == nil {
+		return
+	}
+
+	filtered := make([]error, 0, len(errs))
+
+	for _, e := range errs {
+		if e != nil {
+			filtered = append(filtered, e)
+		}
+	}
+
+	wh.client.cfg.WebHookCallback(p, filtered...)
+}
+
+func (wh *WebHook) writeResponse(w http.ResponseWriter, wp *payload.WebHook) error {
+	if wp.Ec != 0 {
+		w.WriteHeader(wp.Ec)
+	}
+
+	data, err := jsoniter.Marshal(wp)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(data)
+
+	return err
 }

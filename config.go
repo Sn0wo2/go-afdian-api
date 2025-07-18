@@ -10,6 +10,7 @@ type Config struct {
 	// WebHook configuration
 	WebHookListenAddr string
 	WebHookPath       string
+	WebHookCallback   CallBack
 }
 
 func (c *Config) setDefaults() {
