@@ -12,7 +12,7 @@ type Config struct {
 	WebHookPath       string
 }
 
-func (c *Config) Default() {
+func (c *Config) setDefaults() {
 	if c.BaseURL == "" {
 		c.BaseURL = "https://afdian.com/api"
 	}
