@@ -11,7 +11,7 @@ import (
 )
 
 func (c *Client) Ping() (*payload.Ping, error) {
-	resp, err := c.Send("/open/ping", map[any]any{"unix": strconv.FormatInt(time.Now().Unix(), 10)}) //nolint:bodyclose
+	resp, err := c.Send("/open/ping", map[string]string{"unix": strconv.FormatInt(time.Now().Unix(), 10)}) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (c *Client) Ping() (*payload.Ping, error) {
 }
 
 func (c *Client) QueryRandomReply(outTradeNo ...string) (*payload.QueryRandomReply, error) {
-	resp, err := c.Send("/open/query-random-reply", map[any]any{"out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
+	resp, err := c.Send("/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (c *Client) QueryRandomReply(outTradeNo ...string) (*payload.QueryRandomRep
 }
 
 func (c *Client) QueryOrder(page, perPage int, outTradeNo ...string) (*payload.QueryOrder, error) {
-	resp, err := c.Send("/open/query-order", map[any]any{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
+	resp, err := c.Send("/open/query-order", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *Client) QueryOrder(page, perPage int, outTradeNo ...string) (*payload.Q
 }
 
 func (c *Client) QuerySponsor(page, perPage int, outTradeNo ...string) (*payload.QuerySponsor, error) {
-	resp, err := c.Send("/open/query-sponsor", map[any]any{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
+	resp, err := c.Send("/open/query-sponsor", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}

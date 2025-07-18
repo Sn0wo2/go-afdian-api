@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+
+	"github.com/Sn0wo2/go-afdian-api/internal/utils"
 )
 
 type Client struct {
@@ -18,15 +20,15 @@ func NewClient(cfg *Config, hc ...*http.Client) *Client {
 		h = hc[0]
 	}
 
-	cfg.Default()
+	cfg.setDefaults()
 
 	return &Client{cfg: cfg, HTTP: h}
 }
 
 // Send an API request
 // WARNING: Be aware of potential resource leaks
-func (c *Client) Send(path string, params map[any]any) (*http.Response, error) {
-	p, err := newParamsBuilder(c, params).Build()
+func (c *Client) Send(path string, params map[string]string) (*http.Response, error) {
+	p, err := utils.BuildParams(c.cfg.UserID, c.cfg.APIToken, params)
 	if err != nil {
 		return nil, err
 	}
