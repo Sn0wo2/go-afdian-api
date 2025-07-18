@@ -15,18 +15,7 @@ type WebHook struct {
 	// --- PAYLOAD ---
 	Base
 	Data *struct {
-		// --- ERROR ---
-		Explain string `json:"explain,omitempty"` // Error description
-		Debug   *struct {
-			KvString string `json:"kv_string,omitempty"` // For debugging signature errors
-		} `json:"debug,omitempty"`
-		Request *struct {
-			UserID string `json:"user_id,omitempty"`
-			Params string `json:"params,omitempty"` // Request parameters
-			Ts     int    `json:"ts,omitempty"`     // Timestamp
-			Sign   string `json:"sign,omitempty"`   // Signature
-		} `json:"request,omitempty"`
-
+		APIDataBase
 		// --- NORMAL ---
 		Type  string `json:"type,omitempty"` // Webhook type, e.g., "order"
 		Order *struct {
