@@ -10,53 +10,55 @@ import (
 // Use github.com/shopspring/decimal for handling monetary values.
 type QueryOrder struct {
 	// --- INJECTED RAW ---
-	RawResponse *http.Response `json:"-"`
+	RawResponse *http.Response `json:"-"` // Raw HTTP response
 
 	// --- PAYLOAD ---
 	APIBase
 	Data *struct {
 		// --- ERROR ---
-		Explain string `json:"explain,omitempty"`
+		Explain string `json:"explain,omitempty"` // Error description
 		Debug   *struct {
-			KvString string `json:"kv_string,omitempty"`
+			KvString string `json:"kv_string,omitempty"` // For debugging signature errors
 		} `json:"debug,omitempty"`
 
 		// --- NORMAL ---
 		Request *struct {
 			UserID string `json:"user_id,omitempty"`
-			Params string `json:"params,omitempty"`
-			Ts     int    `json:"ts,omitempty"`
-			Sign   string `json:"sign,omitempty"`
+			Params string `json:"params,omitempty"` // Request parameters
+			Ts     int    `json:"ts,omitempty"`     // Timestamp
+			Sign   string `json:"sign,omitempty"`   // Signature
 		} `json:"request,omitempty"`
 
 		List []struct {
-			OutTradeNo  string `json:"out_trade_no,omitempty"`
-			UserID      string `json:"user_id,omitempty"`
-			PlanID      string `json:"plan_id,omitempty"`
-			Month       int    `json:"month,omitempty"`
-			TotalAmount string `json:"total_amount,omitempty"`
-			ShowAmount  string `json:"show_amount,omitempty"`
-			Status      int    `json:"status,omitempty"`
-			Remark      string `json:"remark,omitempty"`
-			RedeemID    string `json:"redeem_id,omitempty"`
-			ProductType int    `json:"product_type,omitempty"`
-			Discount    string `json:"discount,omitempty"`
-			SkuDetail   []struct {
+			OutTradeNo    string `json:"out_trade_no,omitempty"` // Order number
+			CustomOrderID string `json:"custom_order_id"`
+			UserID        string `json:"user_id,omitempty"`      // User ID of the buyer
+			PlanID        string `json:"plan_id,omitempty"`      // Plan ID, empty if it's a custom amount
+			Title         string `json:"title,omitempty"`        // Order title
+			Month         int    `json:"month,omitempty"`        // Number of months sponsored
+			TotalAmount   string `json:"total_amount,omitempty"` // Actual payment amount. 0.00 if a redeem code is used.
+			ShowAmount    string `json:"show_amount,omitempty"`  // Display amount, pre-discount
+			Status        int    `json:"status,omitempty"`       // 2 for successful transaction. Only this type is pushed currently.
+			Remark        string `json:"remark,omitempty"`       // Order remark
+			RedeemID      string `json:"redeem_id,omitempty"`
+			ProductType   int    `json:"product_type,omitempty"` // 0 for regular plan, 1 for product for sale
+			Discount      string `json:"discount,omitempty"`
+			SkuDetail     []struct {
 				SkuID   string `json:"sku_id,omitempty"`
-				Count   int    `json:"count,omitempty"`
+				Count   int    `json:"count,omitempty"` // Quantity
 				Name    string `json:"name,omitempty"`
 				AlbumID string `json:"album_id,omitempty"`
-				Pic     string `json:"pic,omitempty"`
-			} `json:"sku_detail,omitempty"`
-			CreateTime     int    `json:"create_time,omitempty"`
-			UserName       string `json:"user_name,omitempty"`
-			PlanTitle      string `json:"plan_title,omitempty"`
-			UserPrivateID  string `json:"user_private_idm,omitempty"`
-			AddressPerson  string `json:"address_person,omitempty"`
-			AddressPhone   string `json:"address_phone,omitempty"`
-			AddressAddress string `json:"address_address,omitempty"`
+				Pic     string `json:"pic,omitempty"` // Picture URL
+			} `json:"sku_detail,omitempty"` // Details of SKUs if it's a product for sale
+			CreateTime     int    `json:"create_time,omitempty"`      // Creation time of the order
+			UserName       string `json:"user_name,omitempty"`        // Username of the buyer
+			PlanTitle      string `json:"plan_title,omitempty"`       // Title of the plan
+			UserPrivateID  string `json:"user_private_idm,omitempty"` // Unique ID for each user
+			AddressPerson  string `json:"address_person,omitempty"`   // Recipient's name
+			AddressPhone   string `json:"address_phone,omitempty"`    // Recipient's phone number
+			AddressAddress string `json:"address_address,omitempty"`  // Recipient's address
 		} `json:"list,omitempty"`
-		TotalCount int `json:"total_count,omitempty"`
-		TotalPage  int `json:"total_page,omitempty"`
+		TotalCount int `json:"total_count,omitempty"` // Total number of orders
+		TotalPage  int `json:"total_page,omitempty"`  // Total number of pages, default 50 per page.
 	} `json:"data,omitempty"`
 }
