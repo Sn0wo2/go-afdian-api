@@ -2,6 +2,8 @@
 
 > [Afdian](https://afdian.com)'s [~~open~~ API](https://afdian.com/dashboard/dev) golang sdk
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Sn0wo2/go-afdian-api)](https://goreportcard.com/report/github.com/Sn0wo2/go-afdian-api)
+[![GitHub release](https://img.shields.io/github/v/release/Sn0wo2/go-afdian-api?color=blue)](https://github.com/Sn0wo2/go-afdian-api/releases)
 [![GitHub License](https://img.shields.io/github/license/Sn0wo2/go-afdian-api)](LICENSE)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Sn0wo2/go-afdian-api/total)
 
