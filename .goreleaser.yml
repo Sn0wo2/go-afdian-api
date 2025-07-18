@@ -1,6 +1,9 @@
 version: 2
 project_name: go-afdian-api
 
+builds:
+  - skip: true
+
 changelog:
   disable: false
   use: github
