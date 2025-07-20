@@ -56,6 +56,7 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 
 		handleErr := func(err error, code int, msg string) {
 			go wh.runCallback(p, err)
+
 			_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{EC: code, EM: msg}})
 		}
 
