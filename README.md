@@ -17,4 +17,4 @@
 
 - [X] WebHook
 - [X] API
-- [ ] Unsafe API(Web restful api)
+- [ ] ~~Unsafe API~~
