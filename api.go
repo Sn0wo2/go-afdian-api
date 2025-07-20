@@ -1,6 +1,7 @@
 package afdian
 
 import (
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -10,86 +11,42 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-func (c *Client) Ping() (*payload.Ping, error) {
-	resp, err := c.Send("/open/ping", map[string]string{"unix": strconv.FormatInt(time.Now().Unix(), 10)}) //nolint:bodyclose
+type RawResponder interface {
+	SetRawResponse(resp *http.Response)
+}
+
+func doRequest[T any, P interface {
+	*T
+	RawResponder
+}](c *Client, endpoint string, params map[string]string) (*T, error) {
+	resp, err := c.Send(endpoint, params) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
 
-	p := &payload.Ping{}
-	p.RawResponse = resp
+	p := new(T)
+	P(p).SetRawResponse(resp)
 
 	raw, err := utils.ReadAPIResponse(resp)
 	if err != nil {
 		return p, err
 	}
 
-	if err := jsoniter.Unmarshal(raw, p); err != nil {
-		return p, err
-	}
+	return p, jsoniter.Unmarshal(raw, p)
+}
 
-	return p, nil
+func (c *Client) Ping() (*payload.Ping, error) {
+	return doRequest[payload.Ping, *payload.Ping](c, "/open/ping", map[string]string{"unix": strconv.FormatInt(time.Now().Unix(), 10)})
 }
 
 func (c *Client) QueryRandomReply(outTradeNo ...string) (*payload.QueryRandomReply, error) {
-	resp, err := c.Send("/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
-	if err != nil {
-		return nil, err
-	}
-
-	qrr := &payload.QueryRandomReply{}
-	qrr.RawResponse = resp
-
-	raw, err := utils.ReadAPIResponse(resp)
-	if err != nil {
-		return qrr, err
-	}
-
-	if err := jsoniter.Unmarshal(raw, qrr); err != nil {
-		return qrr, err
-	}
-
-	return qrr, nil
+	return doRequest[payload.QueryRandomReply, *payload.QueryRandomReply](c, "/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(outTradeNo, ",")})
 }
 
 func (c *Client) QueryOrder(page, perPage int, outTradeNo ...string) (*payload.QueryOrder, error) {
-	resp, err := c.Send("/open/query-order", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
-	if err != nil {
-		return nil, err
-	}
-
-	qo := &payload.QueryOrder{}
-	qo.RawResponse = resp
-
-	raw, err := utils.ReadAPIResponse(resp)
-	if err != nil {
-		return qo, err
-	}
-
-	if err := jsoniter.Unmarshal(raw, qo); err != nil {
-		return qo, err
-	}
-
-	return qo, nil
+	return doRequest[payload.QueryOrder, *payload.QueryOrder](c, "/open/query-order", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")})
 }
 
 func (c *Client) QuerySponsor(page, perPage int, outTradeNo ...string) (*payload.QuerySponsor, error) {
-	resp, err := c.Send("/open/query-sponsor", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")}) //nolint:bodyclose
-	if err != nil {
-		return nil, err
-	}
-
-	qs := &payload.QuerySponsor{}
-	qs.RawResponse = resp
-
-	raw, err := utils.ReadAPIResponse(resp)
-	if err != nil {
-		return qs, err
-	}
-
-	if err := jsoniter.Unmarshal(raw, qs); err != nil {
-		return qs, err
-	}
-
-	return qs, nil
+	return doRequest[payload.QuerySponsor, *payload.QuerySponsor](c, "/open/query-sponsor", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")})
 }
