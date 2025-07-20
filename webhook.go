@@ -56,7 +56,7 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 
 		handleErr := func(err error, code int, msg string) {
 			go wh.runCallback(p, err)
-			_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{Ec: code, Em: msg}})
+			_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{EC: code, EM: msg}})
 		}
 
 		if r.URL.Path != wh.client.cfg.WebHookPath {
@@ -87,7 +87,7 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 		r.Body = io.NopCloser(bytes.NewReader(raw))
 
 		if err := jsoniter.Unmarshal(raw, p); err != nil {
-			handleErr(err, http.StatusInternalServerError, "Internal server error")
+			handleErr(err, http.StatusBadRequest, "Bad request")
 
 			return
 		}
@@ -100,7 +100,7 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 
 		go wh.runCallback(p, nil)
 
-		_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{Ec: http.StatusOK, Em: "OK"}})
+		_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{EC: http.StatusOK, EM: "OK"}})
 	}
 }
 
@@ -120,12 +120,12 @@ func (wh *WebHook) runCallback(p *payload.WebHook, errs ...error) {
 	wh.client.cfg.WebHookCallback(p, filtered...)
 }
 
-func (wh *WebHook) writeResponse(w http.ResponseWriter, wp *payload.WebHook) error {
-	if wp.Ec != 0 {
-		w.WriteHeader(wp.Ec)
+func (wh *WebHook) writeResponse(w http.ResponseWriter, writePayload *payload.WebHook) error {
+	if writePayload.EC != 0 {
+		w.WriteHeader(writePayload.EC)
 	}
 
-	data, err := jsoniter.Marshal(wp)
+	data, err := jsoniter.Marshal(writePayload)
 	if err != nil {
 		return err
 	}
