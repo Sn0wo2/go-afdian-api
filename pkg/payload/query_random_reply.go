@@ -23,3 +23,7 @@ type QueryRandomReply struct {
 		} `json:"list,omitempty"`
 	} `json:"data,omitempty"`
 }
+
+func (r *QueryRandomReply) SetRawResponse(resp *http.Response) {
+	r.RawResponse = resp
+}

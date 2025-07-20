@@ -13,7 +13,11 @@ type Ping struct {
 	APIBase
 	Data *struct {
 		APIDataBase
-		UID  string `json:"uid,omitempty"`  // User ID
-		Page any    `json:"page,omitempty"` // Page number
+		UID  string `json:"uid,omitempty"`
+		Page any    `json:"page,omitempty"`
 	} `json:"data,omitempty"`
+}
+
+func (p *Ping) SetRawResponse(resp *http.Response) {
+	p.RawResponse = resp
 }

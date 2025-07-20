@@ -79,3 +79,7 @@ type QuerySponsor struct {
 		} `json:"list,omitempty"`
 	} `json:"data,omitempty"`
 }
+
+func (s *QuerySponsor) SetRawResponse(resp *http.Response) {
+	s.RawResponse = resp
+}

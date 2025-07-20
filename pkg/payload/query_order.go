@@ -49,3 +49,7 @@ type QueryOrder struct {
 		TotalPage  int `json:"total_page,omitempty"`  // Total number of pages, default 50 per page.
 	} `json:"data,omitempty"`
 }
+
+func (o *QueryOrder) SetRawResponse(resp *http.Response) {
+	o.RawResponse = resp
+}
