@@ -80,8 +80,6 @@ jobs:
         with:
           version: latest
           args: --fix
-          cache-key: golangci-lint
-          cache: true
 
       - name: Check for file changes
         id: git-check
