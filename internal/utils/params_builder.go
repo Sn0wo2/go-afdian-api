@@ -10,7 +10,7 @@ import (
 )
 
 // BuildParams builds the final request parameters.
-func BuildParams(userID, apiToken string, params map[string]string) ([]byte, error) {
+func BuildParams(userID, apiToken string, params map[string]string, ts ...int64) ([]byte, error) {
 	for k, v := range params {
 		if v == "" {
 			delete(params, k)
@@ -22,9 +22,12 @@ func BuildParams(userID, apiToken string, params map[string]string) ([]byte, err
 		return nil, fmt.Errorf("failed to marshal params: %w", err)
 	}
 
-	ts := time.Now().Unix()
+	timestamp := time.Now().Unix()
+	if len(ts) > 0 {
+		timestamp = ts[0]
+	}
 
-	s, err := sign.APISignParams(userID, apiToken, paramsJSON, ts)
+	signed, err := sign.APISignParams(userID, apiToken, paramsJSON, timestamp)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign params: %w", err)
 	}
@@ -37,7 +40,7 @@ func BuildParams(userID, apiToken string, params map[string]string) ([]byte, err
 	}{
 		UserID: userID,
 		Params: helper.BytesToString(paramsJSON),
-		Ts:     ts,
-		Sign:   s,
+		Ts:     timestamp,
+		Sign:   signed,
 	})
 }
