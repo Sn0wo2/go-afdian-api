@@ -28,7 +28,12 @@ func runCmd(name string, args ...string) (string, error) {
 func executeStep(description string, command string, args ...string) {
 	fmt.Println(description)
 
-	_, err := runCmd(command, args...)
+	cmd := exec.Command(command, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
