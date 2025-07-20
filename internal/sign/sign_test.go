@@ -52,6 +52,7 @@ func TestWebHookSignVerify(t *testing.T) {
 		publicKeyPEM = rb
 	})
 
+	//nolint:paralleltest
 	t.Run("valid public key", func(t *testing.T) {
 		assert.NoError(t, WebHookSignVerify(newTestWebHook(t, "EIUrs8kvspg0MqLvpODkQqpyQLppXCNGPDe8+vvfER9VCzGImjvVJiPUd2UWaGP3A9sS/Ov+hFGwHAdvrm4i9Bte3kNQvwAXcaZx2g06JsngEr4MCe+nn0JHm+mtK9np8N5gJ3DC3GAs6l88SmTnMeJ4no+bPexfqPTYAMWs26e0mexjyLY+8f5l9Zv9rQAz+i/kVjtGNgXFQF34+hAmfOoSxlTJth41XMeVLHxi46kHb+tJNGkU4vLrnMftos2yMzHO+rDP10N7o7VNGMO37aCWfJ+uwKgcXBo0xVbPPAVxHZ+GtOnlEpasINnmoJW7maaoOpRX+IUIxd/U4gTnxA==")))
 	})
