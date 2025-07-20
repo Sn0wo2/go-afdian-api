@@ -15,7 +15,7 @@ import (
 )
 
 // publicKeyPEM afdian public key
-const publicKeyPEM = `-----BEGIN PUBLIC KEY-----
+var publicKeyPEM = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwwdaCg1Bt+UKZKs0R54y
 lYnuANma49IpgoOwNmk3a0rhg/PQuhUJ0EOZSowIC44l0K3+fqGns3Ygi4AfmEfS
 4EKbdk1ahSxu7Zkp2rHMt+R9GarQFQkwSS/5x1dYiHNVMiR8oIXDgjmvxuNes2Cr
@@ -52,13 +52,11 @@ func WebHookSignVerify(p *payload.WebHook) error {
 		return errors.New("invalid public key")
 	}
 
-	order := p.Data.Order
-
 	hashed := crypto.SHA256.New()
-	hashed.Write(helper.StringToBytes(order.OutTradeNo +
-		order.UserID +
-		order.PlanID +
-		order.TotalAmount))
+	hashed.Write(helper.StringToBytes(p.Data.Order.OutTradeNo +
+		p.Data.Order.UserID +
+		p.Data.Order.PlanID +
+		p.Data.Order.TotalAmount))
 
 	return rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed.Sum(nil), sigBytes)
 }
