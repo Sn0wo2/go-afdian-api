@@ -1,6 +1,6 @@
 # ⚡ go-afdian-api
 
-> [Afdian](https://afdian.com)'s [~~open~~ API](https://afdian.com/dashboard/dev) golang sdk
+> Go SDK for the [Afdian](https://afdian.com) ~~open~~ API
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Sn0wo2/go-afdian-api)](https://goreportcard.com/report/github.com/Sn0wo2/go-afdian-api)
 [![GitHub release](https://img.shields.io/github/v/release/Sn0wo2/go-afdian-api?color=blue)](https://github.com/Sn0wo2/go-afdian-api/releases)
@@ -18,10 +18,4 @@
 
 - [X] WebHook
 - [X] API
-- [ ] Unsafe API
-
----
-
-## 📄 **License**
-
-Licensed under [GPL 3.0](LICENSE).
+- [ ] Unsafe API(Web restful api)
