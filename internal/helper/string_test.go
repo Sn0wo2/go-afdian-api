@@ -66,6 +66,7 @@ func TestStringToBytes(t *testing.T) {
 
 	t.Run("long string", func(t *testing.T) {
 		t.Parallel()
+
 		long := make([]byte, 10000)
 		for i := range long {
 			long[i] = 'a'
