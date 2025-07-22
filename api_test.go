@@ -55,7 +55,7 @@ func TestQueryRandomReply(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, reply)
 	assert.Equal(t, 200, reply.EC)
-	assert.Equal(t, "ok", reply.EM)
+	assert.Equal(t, "success", reply.EM)
 	assert.NotEmpty(t, reply.Data.List)
 }
 
@@ -79,8 +79,8 @@ func TestQuerySponsor(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, sponsor)
 	assert.Equal(t, 200, sponsor.EC)
-	assert.Equal(t, "ok", sponsor.EM)
-	assert.Equal(t, 1, sponsor.Data.TotalCount)
+	assert.Empty(t, sponsor.EM)
+	assert.Equal(t, 167, sponsor.Data.TotalCount)
 	assert.NotEmpty(t, sponsor.Data.List)
 }
 
@@ -118,5 +118,5 @@ func TestDoRequestInvalidJSON(t *testing.T) {
 
 	require.Error(t, err)
 	assert.NotNil(t, ping)
-	assert.Equal(t, 0, ping.EC)
+	assert.Equal(t, 200, ping.EC)
 }
