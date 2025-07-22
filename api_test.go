@@ -69,7 +69,7 @@ func TestQuerySponsor(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewBufferString(`{"ec":200,"em":"","data":{"list":[{"out_trade_no":"202106232138371083454010626","custom_order_id":"Steam12345","user_id":"adf397fe8374811eaacee52540025c377","user_private_id":"33","plan_id":"a45353328af911eb973052540025c377","month":1,"total_amount":"5.00","show_amount":"5.00","status":2,"remark":"","redeem_id":"","product_type":0,"discount":"0.00","sku_detail":[{"sku_id":"b082342c4aba11ebb5cb52540025c377","count":1,"name":"15000 赏金/货币 兑换码","album_id":"","pic":"https://pic1.afdiancdn.com/user/8a8e408a3aeb11eab26352540025c377/common/sfsfsff.jpg"}],"address_person":"","address_phone":"","address_address":""}],"total_count":167,"total_page":11}}`)),
+					Body:       io.NopCloser(bytes.NewBufferString(`{"ec":200,"em":"","data":{"list":[{"out_trade_no":"202106232138371083454010626","custom_order_id":"Steam12345","user_id":"adf397fe8374811eaacee52540025c377","user_private_id":"33","plan_id":"a45353328af911eb973052540025c377","month":1,"total_amount":"5.00","show_amount":"5.00","status":2,"remark":"","redeem_id":"","product_type":0,"discount":"0.00","sku_detail":[{"sku_id":"b082342c4aba11ebb5cb52540025c377","count":1,"name":"15000 赏金/货币 兑换码","album_id":"","pic":"https://pic1.afdiancdn.com/user/8a8e408a3aeb11eab26352540025c377/common/sfsfsff.jpg"}],"address_person":"","address_phone":"","address_address":""}],"total_count":167,"total_page":11}}`)), //nolint:gosmopolitan
 					Header:     make(http.Header),
 				}, nil
 			},
