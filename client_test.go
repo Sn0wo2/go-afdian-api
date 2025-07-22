@@ -72,6 +72,12 @@ func TestSend(t *testing.T) {
 			expectError:    false,
 			expectedStatus: http.StatusOK,
 		},
+		{
+			name:        "new request error",
+			path:        "\n",
+			params:      nil,
+			expectError: true,
+		},
 	}
 
 	for _, tt := range tests {
