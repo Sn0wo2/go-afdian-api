@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConfig_setDefaults(t *testing.T) {
+func TestConfigSetDefaults(t *testing.T) {
 	t.Parallel()
 
 	t.Run("default base url", func(t *testing.T) {
