@@ -39,6 +39,7 @@ func (c *Client) Ping() (*payload.Ping, error) {
 	return doRequest[payload.Ping, *payload.Ping](c, "/open/ping", map[string]string{"unix": strconv.FormatInt(time.Now().Unix(), 10)})
 }
 
+// QueryRandomReply need one or more outTradeNo
 func (c *Client) QueryRandomReply(outTradeNo ...string) (*payload.QueryRandomReply, error) {
 	return doRequest[payload.QueryRandomReply, *payload.QueryRandomReply](c, "/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(outTradeNo, ",")})
 }
