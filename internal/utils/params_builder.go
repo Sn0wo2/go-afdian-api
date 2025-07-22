@@ -32,14 +32,19 @@ func BuildParams(userID, apiToken string, params map[string]string, ts ...int64)
 		return nil, fmt.Errorf("failed to sign params: %w", err)
 	}
 
+	paramsStr := ""
+	if len(params) > 0 { // thanks afdian json string in json
+		paramsStr = helper.BytesToString(paramsJSON)
+	}
+
 	return jsoniter.Marshal(struct {
-		UserID string `json:"user_id"`
-		Params string `json:"params"`
-		Ts     int64  `json:"ts"`
-		Sign   string `json:"sign"`
+		UserID string `json:"user_id,omitempty"`
+		Params string `json:"params,omitempty"`
+		Ts     int64  `json:"ts,omitempty"`
+		Sign   string `json:"sign,omitempty"`
 	}{
 		UserID: userID,
-		Params: helper.BytesToString(paramsJSON),
+		Params: paramsStr,
 		Ts:     timestamp,
 		Sign:   signed,
 	})
