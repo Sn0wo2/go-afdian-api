@@ -12,16 +12,14 @@ import (
 )
 
 func runCmd(name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
-
-	output, err := cmd.CombinedOutput()
+	output, err := exec.Command(name, args...).CombinedOutput()
 	if err != nil {
 		var exitError *exec.ExitError
 		if errors.As(err, &exitError) && strings.Contains(string(exitError.Stderr), "No names found") {
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to run command '%s %s': %w\n%s", name, strings.Join(args, " "), err, string(output))
+		return "", fmt.Errorf("failed to run command '%s %s': %w\n%s", name, strings.Join(args, " "), err, helper.BytesToString(output))
 	}
 
 	return strings.TrimSpace(helper.BytesToString(output)), nil
@@ -37,16 +35,14 @@ func executeStep(description string, command string, args ...string) {
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		panic(err)
 	}
 }
 
 func main() {
 	lastTag, err := runCmd("git", "describe", "--tags", "--abbrev=0")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error getting last tag: %v\n", err)
-		os.Exit(1)
+		panic(err)
 	}
 
 	if lastTag == "" {
@@ -57,23 +53,19 @@ func main() {
 
 	fmt.Print("Enter new tag: ")
 
-	reader := bufio.NewReader(os.Stdin)
-
-	newTag, err := reader.ReadString('\n')
+	newTag, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to read from stdin: %v\n", err)
-		os.Exit(1)
+		panic(err)
 	}
 
 	newTag = strings.TrimSpace(newTag)
 
 	if newTag == "" {
-		fmt.Println("No tag entered, aborting.")
-		os.Exit(1)
+		panic("No tag entered, aborting.")
 	}
 
 	executeStep(fmt.Sprintf("Tagging %s...", newTag), "git", "tag", newTag)
-	executeStep("Pushing tags...", "git", "push", "--tags")
+	executeStep(fmt.Sprintf("Pushing tag %s...", newTag), "git", "push", "origin", newTag)
 
 	fmt.Printf("Successfully tagged and pushed %s.\n", newTag)
 }
