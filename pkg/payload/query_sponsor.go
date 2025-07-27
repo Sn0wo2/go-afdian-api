@@ -39,8 +39,9 @@ type QuerySponsor struct {
 				SaleLimitCount int    `json:"sale_limit_count,omitempty"`
 				NeedInviteCode bool   `json:"need_invite_code,omitempty"` // Whether an invitation code is required
 				ExpireTime     int    `json:"expire_time,omitempty"`
-				SkuProcessed   []any  `json:"sku_processed,omitempty"`
-				RankType       int    `json:"rankType,omitempty"`
+				// Unknown
+				SkuProcessed []any `json:"sku_processed,omitempty"`
+				RankType     int   `json:"rankType,omitempty"`
 			} `json:"sponsor_plans,omitempty"`
 			CurrentPlan *struct {
 				Name           string `json:"name,omitempty"` // Plan name
