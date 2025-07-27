@@ -9,10 +9,12 @@ on:
 
 jobs:
   release:
-    name: Release
+    name: GoRelease
     runs-on: ubuntu-latest
+    
     permissions:
       contents: write
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
