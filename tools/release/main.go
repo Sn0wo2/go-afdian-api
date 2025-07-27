@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/Sn0wo2/go-afdian-api/internal/helper"
 )
 
 func runCmd(name string, args ...string) (string, error) {
@@ -22,7 +24,7 @@ func runCmd(name string, args ...string) (string, error) {
 		return "", fmt.Errorf("failed to run command '%s %s': %w\n%s", name, strings.Join(args, " "), err, string(output))
 	}
 
-	return strings.TrimSpace(string(output)), nil
+	return strings.TrimSpace(helper.BytesToString(output)), nil
 }
 
 func executeStep(description string, command string, args ...string) {
