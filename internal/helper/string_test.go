@@ -32,7 +32,7 @@ func TestBytesToString(t *testing.T) {
 		{
 			name:  "unicode bytes",
 			input: []byte("你好，世界"), //nolint:gosmopolitan
-			want:  "你好，世界",
+			want:  "你好，世界",         //nolint:gosmopolitan
 		},
 		{
 			name:  "special chars",
@@ -47,7 +47,6 @@ func TestBytesToString(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.want, BytesToString(tc.input))
@@ -86,8 +85,8 @@ func TestStringToBytes(t *testing.T) {
 		},
 		{
 			name:  "unicode string",
-			input: "你好，世界", //nolint:gosmopolitan
-			want:  []byte("你好，世界"),
+			input: "你好，世界",         //nolint:gosmopolitan
+			want:  []byte("你好，世界"), //nolint:gosmopolitan
 		},
 		{
 			name:  "special chars string",
@@ -102,11 +101,11 @@ func TestStringToBytes(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
 			if tc.input == "" {
-				assert.Nil(t, StringToBytes(tc.input))
+				assert.Empty(t, StringToBytes(tc.input))
 			} else {
 				assert.Equal(t, tc.want, StringToBytes(tc.input))
 			}
