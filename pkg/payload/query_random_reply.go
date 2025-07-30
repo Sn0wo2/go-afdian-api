@@ -9,9 +9,6 @@ import (
 // WARNING: Do NOT convert amounts directly to float when performing operations on money (due to floating-point precision errors)!
 // Use github.com/shopspring/decimal for handling monetary values.
 type QueryRandomReply struct {
-	// --- INJECTED RAW ---
-	RawResponse *http.Response `json:"-"` // Raw HTTP response
-
 	// --- PAYLOAD ---
 	APIBase
 	Data *struct {

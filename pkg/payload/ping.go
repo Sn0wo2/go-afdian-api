@@ -6,9 +6,6 @@ import (
 
 // Ping payload
 type Ping struct {
-	// --- INJECTED RAW ---
-	RawResponse *http.Response `json:"-"` // Raw HTTP response
-
 	// --- PAYLOAD ---
 	APIBase
 	Data *struct {
