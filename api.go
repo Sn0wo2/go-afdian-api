@@ -1,6 +1,7 @@
 package afdian
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,7 +33,17 @@ func doRequest[T any, P interface {
 		return p, err
 	}
 
-	return p, jsoniter.Unmarshal(raw, p)
+	if err := jsoniter.Unmarshal(raw, p); err != nil {
+		return p, err
+	}
+
+	if checker, ok := any(p).(payload.Checker); ok {
+		if ec := checker.GetEC(); ec != http.StatusOK {
+			return p, fmt.Errorf("afdian api error: ec=%d, em=%s", ec, checker.GetEM())
+		}
+	}
+
+	return p, nil
 }
 
 func (c *Client) Ping() (*payload.Ping, error) {
