@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Sn0wo2/go-afdian-api"
+	"github.com/Sn0wo2/go-afdian-api/internal/helper"
 )
 
 func main() {
@@ -31,7 +32,11 @@ func main() {
 	}
 
 	body, err := io.ReadAll(sponsor.RawResponse.Body)
-	fmt.Println(string(body))
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(helper.BytesToString(body))
 
 	/*if err := afdian.NewWebHook(client).Start(); err != nil {
 		panic(err)

@@ -97,10 +97,28 @@ func TestQueryOrderError(t *testing.T) {
 		},
 	}}).QueryOrder(1, 10)
 
-	require.NoError(t, err)
+	require.Error(t, err)
 	assert.NotNil(t, order)
 	assert.Equal(t, 400, order.EC)
 	assert.Equal(t, "error message from server", order.EM)
+	assert.EqualError(t, err, "afdian api error: ec=400, em=error message from server")
+}
+
+func TestDoRequestCheckerError(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewClient(&Config{UserID: "user123", APIToken: "token123"}, &http.Client{Transport: &mockRoundTripper{
+		roundTrip: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewBufferString(`{"ec":401,"em":"invalid token"}`)),
+				Header:     make(http.Header),
+			}, nil
+		},
+	}}).Ping()
+
+	require.Error(t, err)
+	assert.EqualError(t, err, "afdian api error: ec=401, em=invalid token")
 }
 
 func TestDoRequestInvalidJSON(t *testing.T) {
