@@ -1,10 +1,10 @@
 module github.com/Sn0wo2/go-afdian-api
 
-go 1.24.5
+go 1.25.2
 
 require (
 	github.com/json-iterator/go v1.1.12
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
