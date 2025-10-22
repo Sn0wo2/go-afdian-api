@@ -51,8 +51,9 @@ func (c *Client) Ping() (*payload.Ping, error) {
 }
 
 // QueryRandomReply need one or more outTradeNo
-func (c *Client) QueryRandomReply(outTradeNo ...string) (*payload.QueryRandomReply, error) {
-	return doRequest[payload.QueryRandomReply, *payload.QueryRandomReply](c, "/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(outTradeNo, ",")})
+func (c *Client) QueryRandomReply(outTradeNo string, outTradeNos ...string) (*payload.QueryRandomReply, error) {
+	outTradeNos = append([]string{outTradeNo}, outTradeNos...)
+	return doRequest[payload.QueryRandomReply, *payload.QueryRandomReply](c, "/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(outTradeNos, ",")})
 }
 
 func (c *Client) QueryOrder(page, perPage int, outTradeNo ...string) (*payload.QueryOrder, error) {
