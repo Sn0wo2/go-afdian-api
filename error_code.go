@@ -1,6 +1,8 @@
 package afdian
 
 // afdian custom error codes
+//
+// Deprecated: use ec package instead
 const (
 	ECParamsIncomplete   = 400001
 	ECTimeExpired        = 400002
