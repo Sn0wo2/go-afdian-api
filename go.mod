@@ -1,6 +1,6 @@
 module github.com/Sn0wo2/go-afdian-api
 
-go 1.27.3
+go 1.27
 
 require github.com/stretchr/testify v1.12.1
 

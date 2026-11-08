@@ -84,5 +84,5 @@ func (c *Client) ExchangeToken(code, redirectURI string) (*payload.OAuthAccessTo
 
 	p := new(payload.OAuthAccessToken)
 
-	return p, processResponse(resp, p, p)
+	return p, processResponse(resp, p)
 }
