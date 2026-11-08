@@ -22,15 +22,15 @@ func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 func TestNewClient(t *testing.T) {
 	t.Parallel()
 
-	cfg := &Config{
-		UserID:   "test_user_id",
-		APIToken: "test_api_token",
-	}
-
 	t.Run("default http client", func(t *testing.T) {
 		t.Parallel()
 
-		client := NewClient(cfg)
+		// each subtest needs its own Config because NewClient mutates it,
+		// sharing one Config here would race between parallel subtests
+		client := NewClient(&Config{
+			UserID:   "test_user_id",
+			APIToken: "test_api_token",
+		})
 		assert.Equal(t, http.DefaultClient, client.HTTP)
 	})
 
@@ -38,7 +38,10 @@ func TestNewClient(t *testing.T) {
 		t.Parallel()
 
 		customClient := &http.Client{}
-		client := NewClient(cfg, customClient)
+		client := NewClient(&Config{
+			UserID:   "test_user_id",
+			APIToken: "test_api_token",
+		}, customClient)
 		assert.Equal(t, customClient, client.HTTP)
 	})
 }
