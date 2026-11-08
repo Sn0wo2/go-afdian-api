@@ -1,6 +1,8 @@
-# ⚡ go-afdian-api
+# go-afdian-api
 
-> Go SDK for the [Afdian](https://afdian.com) ~~open~~ API
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Sn0wo2/go-afdian-api)
+
+> Go SDK for the [Afdian](https://afdian.com) ~~Open~~ API
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Sn0wo2/go-afdian-api)](https://goreportcard.com/report/github.com/Sn0wo2/go-afdian-api)
 [![GitHub release](https://img.shields.io/github/v/release/Sn0wo2/go-afdian-api?color=blue)](https://github.com/Sn0wo2/go-afdian-api/releases)
@@ -16,7 +18,7 @@
 ## 🚀 Features
 
 - [X] WebHook
-- [X] API
+- [X] API (docs: [爱发电 Webhook 与 API 文档](https://afdian.com/p/9c65d9cc617011ed81c352540025c377))
 - [X] OAuth2 (docs: [爱发电开发者功能汇总](https://afdian.com/p/010ff078177211eca44f52540025c377))
 - [ ] ~~Unsafe API~~
 
