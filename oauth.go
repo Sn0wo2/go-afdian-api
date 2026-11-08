@@ -77,7 +77,7 @@ func (c *Client) ExchangeToken(code, redirectURI string) (*payload.OAuthAccessTo
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", c.cfg.UserAgent)
 
-	resp, err := c.HTTP.Do(req)
+	resp, err := c.HTTP.Do(req) //nolint:bodyclose // false positive: processResponse closes the body
 	if err != nil {
 		return nil, err
 	}

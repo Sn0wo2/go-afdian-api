@@ -65,7 +65,7 @@ func (c *Client) doRequest[T any, P interface {
 	*T
 	apiResponder
 }](endpoint string, params map[string]string) (*T, error) {
-	resp, err := c.Send(endpoint, params)
+	resp, err := c.Send(endpoint, params) //nolint:bodyclose // false positive: processResponse closes the body
 	if err != nil {
 		return nil, err
 	}
