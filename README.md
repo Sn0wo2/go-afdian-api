@@ -17,6 +17,7 @@
 
 - [X] WebHook
 - [X] API
+- [X] OAuth2 (docs: [爱发电开发者功能汇总](https://afdian.com/p/010ff078177211eca44f52540025c377))
 - [ ] ~~Unsafe API~~
 
 ## License
