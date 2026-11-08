@@ -12,7 +12,7 @@ test:
 	go test $(if $(filter 1,$(shell go env CGO_ENABLED)),-race) ./...
 
 build:
-	go build -trimpath -ldflags "-s -w" -o $(BINARY_NAME) ./cmd
+	go build -mod=readonly -trimpath -ldflags "-s -w" -o $(BINARY_NAME) ./cmd
 
 clean:
 	rm -f $(BINARY_NAME) $(BINARY_NAME).exe
@@ -20,7 +20,7 @@ clean:
 security:
 	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
-ci: lint test security
+ci: lint test security build
 
 release:
 	goreleaser release --clean
