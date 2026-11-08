@@ -2,6 +2,7 @@ package afdian
 
 import (
 	"bytes"
+	"encoding/json/v2"
 	"io"
 	"net/http"
 	"testing"
@@ -67,6 +68,16 @@ func TestQuerySponsor(t *testing.T) {
 			roundTrip: func(req *http.Request) (*http.Response, error) {
 				assert.Equal(t, http.MethodPost, req.Method)
 
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+
+				var sent struct {
+					Params string `json:"params"`
+				}
+				require.NoError(t, json.Unmarshal(body, &sent))
+				// params must be deterministic and lexically sorted (afdian sign requirement)
+				assert.JSONEq(t, `{"page":"1","per_page":"100","user_id":"user456"}`, sent.Params)
+
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewBufferString(`{"ec":200,"em":"","data":{"list":[{"out_trade_no":"202106232138371083454010626","custom_order_id":"Steam12345","user_id":"adf397fe8374811eaacee52540025c377","user_private_id":"33","plan_id":"a45353328af911eb973052540025c377","month":1,"total_amount":"5.00","show_amount":"5.00","status":2,"remark":"","redeem_id":"","product_type":0,"discount":"0.00","sku_detail":[{"sku_id":"b082342c4aba11ebb5cb52540025c377","count":1,"name":"15000 赏金/货币 兑换码","album_id":"","pic":"https://pic1.afdiancdn.com/user/8a8e408a3aeb11eab26352540025c377/common/sfsfsff.jpg"}],"address_person":"","address_phone":"","address_address":""}],"total_count":167,"total_page":11}}`)), //nolint:gosmopolitan
@@ -74,7 +85,7 @@ func TestQuerySponsor(t *testing.T) {
 				}, nil
 			},
 		},
-	}).QuerySponsor(1, 100)
+	}).QuerySponsor(1, 100, "user456")
 
 	require.NoError(t, err)
 	assert.NotNil(t, sponsor)

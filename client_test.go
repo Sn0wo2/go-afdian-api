@@ -95,6 +95,7 @@ func TestSend(t *testing.T) {
 						assert.Equal(t, http.MethodPost, req.Method)
 						assert.Equal(t, "https://afdian.com/api"+tt.path, req.URL.String())
 						assert.Equal(t, "application/json", req.Header.Get("Content-Type"))
+						assert.Equal(t, userAgent(), req.Header.Get("User-Agent"))
 
 						return tt.mockResponse, tt.mockError
 					},

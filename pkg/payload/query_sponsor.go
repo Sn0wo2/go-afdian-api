@@ -1,9 +1,5 @@
 package payload
 
-import (
-	"net/http"
-)
-
 // QuerySponsor payload
 //
 // WARNING: Do NOT convert amounts directly to float when performing operations on money (due to floating-point precision errors)!
@@ -76,8 +72,4 @@ type QuerySponsor struct {
 			} `json:"user,omitempty"`
 		} `json:"list,omitempty"`
 	} `json:"data,omitempty"`
-}
-
-func (s *QuerySponsor) SetRawResponse(resp *http.Response) {
-	s.RawResponse = resp
 }

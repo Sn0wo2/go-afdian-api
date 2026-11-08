@@ -2,57 +2,81 @@ package afdian
 
 import (
 	"bytes"
+	"crypto"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/json/v2"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/Sn0wo2/go-afdian-api/internal/sign"
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
-	jsoniter "github.com/json-iterator/go"
 )
 
-// CallBack for WebHook.
 type CallBack func(p *payload.WebHook, errs ...error)
 
-// WebHook handler
 type WebHook struct {
 	client     *Client
 	HTTPServer *http.Server
 }
 
-// NewWebHook creates a new WebHook handler.
-func NewWebHook(client *Client) *WebHook {
-	wh := &WebHook{client: client}
-	client.WebHook = wh
+var webhookPublicKey = func() *rsa.PublicKey {
+	block, _ := pem.Decode([]byte(`-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwwdaCg1Bt+UKZKs0R54y
+lYnuANma49IpgoOwNmk3a0rhg/PQuhUJ0EOZSowIC44l0K3+fqGns3Ygi4AfmEfS
+4EKbdk1ahSxu7Zkp2rHMt+R9GarQFQkwSS/5x1dYiHNVMiR8oIXDgjmvxuNes2Cr
+8fw9dEF0xNBKdkKgG2qAawcN1nZrdyaKWtPVT9m2Hl0ddOO9thZmVLFOb9NVzgYf
+jEgI+KWX6aY19Ka/ghv/L4t1IXmz9pctablN5S0CRWpJW3Cn0k6zSXgjVdKm4uN7
+jRlgSRaf/Ind46vMCm3N2sgwxu/g3bnooW+db0iLo13zzuvyn727Q3UDQ0MmZcEW
+MQIDAQAB
+-----END PUBLIC KEY-----`))
+	if block == nil {
+		panic("afdian: invalid embedded webhook public key")
+	}
 
-	return wh
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		panic("afdian: invalid embedded webhook public key")
+	}
+
+	pub, ok := key.(*rsa.PublicKey)
+	if !ok {
+		panic("afdian: invalid embedded webhook public key")
+	}
+
+	return pub
+}()
+
+func NewWebHook(client *Client) *WebHook {
+	client.WebHook = &WebHook{client: client}
+
+	return client.WebHook
 }
 
-// Start the WebHook server
 func (wh *WebHook) Start() error {
 	if wh.client.cfg.WebHookListenAddr == "" {
 		return errors.New("WebHookListenAddr is empty")
 	}
 
-	server := http.Server{
+	wh.HTTPServer = &http.Server{
 		Addr:              wh.client.cfg.WebHookListenAddr,
 		Handler:           wh.resolve(),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	wh.HTTPServer = &server
-
-	return server.ListenAndServe()
+	return wh.HTTPServer.ListenAndServe()
 }
 
 func (wh *WebHook) resolve() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		p := &payload.WebHook{}
-		p.RawRequest = r
+		p := &payload.WebHook{RawRequest: r}
 
 		handleErr := func(err error, code int, msg string) {
 			go wh.runCallback(p, err)
@@ -87,38 +111,51 @@ func (wh *WebHook) resolve() http.HandlerFunc {
 
 		r.Body = io.NopCloser(bytes.NewReader(raw))
 
-		if err := jsoniter.Unmarshal(raw, p); err != nil {
+		if err := json.Unmarshal(raw, p); err != nil {
 			handleErr(err, http.StatusBadRequest, "Bad request")
 
 			return
 		}
 
-		if err := sign.WebHookSignVerify(p); err != nil {
-			handleErr(fmt.Errorf("invalid sign: %s", p.Data.Sign), http.StatusBadRequest, "Bad request")
+		if p.Data == nil || p.Data.Order == nil {
+			handleErr(errors.New("invalid webhook payload"), http.StatusBadRequest, "Bad request")
 
 			return
 		}
 
-		go wh.runCallback(p, nil)
+		sig, err := base64.StdEncoding.DecodeString(p.Data.Sign)
+		if err == nil {
+			hashed := crypto.SHA256.New()
+			hashed.Write([]byte(p.Data.Order.OutTradeNo +
+				p.Data.Order.UserID +
+				p.Data.Order.PlanID +
+				p.Data.Order.TotalAmount))
+
+			err = rsa.VerifyPKCS1v15(webhookPublicKey, crypto.SHA256, hashed.Sum(nil), sig)
+		}
+
+		if err != nil {
+			handleErr(err, http.StatusBadRequest, "Bad request")
+
+			return
+		}
+
+		go wh.runCallback(p)
 
 		_ = wh.writeResponse(w, &payload.WebHook{Base: payload.Base{EC: http.StatusOK, EM: "OK"}})
 	}
 }
 
 func (wh *WebHook) runCallback(p *payload.WebHook, errs ...error) {
-	if wh.client.cfg.WebHookCallback == nil {
-		return
-	}
-
-	filtered := make([]error, 0, len(errs))
-
-	for _, e := range errs {
-		if e != nil {
-			filtered = append(filtered, e)
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("afdian: recovered from webhook callback panic: %v", r)
 		}
-	}
+	}()
 
-	wh.client.cfg.WebHookCallback(p, filtered...)
+	if cb := wh.client.cfg.WebHookCallback; cb != nil {
+		cb(p, errs...)
+	}
 }
 
 func (wh *WebHook) writeResponse(w http.ResponseWriter, writePayload *payload.WebHook) error {
@@ -126,7 +163,7 @@ func (wh *WebHook) writeResponse(w http.ResponseWriter, writePayload *payload.We
 		w.WriteHeader(writePayload.EC)
 	}
 
-	data, err := jsoniter.Marshal(writePayload)
+	data, err := json.Marshal(writePayload)
 	if err != nil {
 		return err
 	}

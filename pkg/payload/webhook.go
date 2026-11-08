@@ -19,7 +19,8 @@ type WebHook struct {
 		// --- NORMAL ---
 		Type  string `json:"type,omitempty"` // Webhook type, e.g., "order"
 		Order *struct {
-			OutTradeNo    string `json:"out_trade_no,omitempty"` // Order number
+			OutTradeNo    string `json:"out_trade_no,omitempty"`    // Order number
+			CustomOrderID string `json:"custom_order_id,omitempty"` // Custom order ID passed via purchase URL parameters
 			PlanTitle     string `json:"plan_title,omitempty"`
 			UserPrivateID string `json:"user_private_id,omitempty"`
 			UserID        string `json:"user_id,omitempty"`

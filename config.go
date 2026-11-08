@@ -1,24 +1,17 @@
 package afdian
 
 type Config struct {
-	BaseURL string
+	BaseURL   string
+	UserAgent string
+	UserID    string
+	APIToken  string
 
-	// Auth configuration
-	UserID   string
-	APIToken string
+	OAuthClientID     string
+	OAuthClientSecret string
+	OAuthScope        string // OAuth2 scope, only "basic" is documented so far, defaults to "basic" when empty
+	OAuthRedirectURI  string // Default OAuth2 redirect_uri, can be overridden per call
 
-	// WebHook configuration
 	WebHookListenAddr string
 	WebHookPath       string
 	WebHookCallback   CallBack
-}
-
-func (c *Config) setDefaults() {
-	if c.BaseURL == "" {
-		c.BaseURL = "https://afdian.com/api"
-	}
-
-	if c.WebHookListenAddr != "" && c.WebHookPath == "" {
-		c.WebHookPath = "/"
-	}
 }

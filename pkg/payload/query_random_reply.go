@@ -1,9 +1,5 @@
 package payload
 
-import (
-	"net/http"
-)
-
 // QueryRandomReply
 //
 // WARNING: Do NOT convert amounts directly to float when performing operations on money (due to floating-point precision errors)!
@@ -19,8 +15,4 @@ type QueryRandomReply struct {
 			Content    string `json:"content,omitempty"`      // Content of the random reply
 		} `json:"list,omitempty"`
 	} `json:"data,omitempty"`
-}
-
-func (r *QueryRandomReply) SetRawResponse(resp *http.Response) {
-	r.RawResponse = resp
 }

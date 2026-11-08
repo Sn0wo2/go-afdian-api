@@ -5,26 +5,25 @@ import (
 )
 
 type APIBase struct {
-	// --- INJECTED RAW ---
 	RawResponse *http.Response `json:"-"`
 
-	// --- PAYLOAD ---
 	Base
 }
 
-// APIDataBase contains the common fields for all API responses.
 type APIDataBase struct {
-	// --- ERROR ---
-	Explain string `json:"explain,omitempty"` // Error description
+	Explain string `json:"explain,omitempty"`
 	Debug   *struct {
-		KvString string `json:"kv_string,omitempty"` // For debugging signature errors
+		KvString string `json:"kv_string,omitempty"`
 	} `json:"debug,omitempty"`
 
-	// --- NORMAL ---
 	Request *struct {
-		UserID string `json:"user_id,omitempty"` // User ID
-		Params string `json:"params,omitempty"`  // Request parameters
-		Ts     int    `json:"ts,omitempty"`      // Timestamp
-		Sign   string `json:"sign,omitempty"`    // Signature
+		UserID string `json:"user_id,omitempty"`
+		Params string `json:"params,omitempty"`
+		Ts     int    `json:"ts,omitempty"`
+		Sign   string `json:"sign,omitempty"`
 	} `json:"request,omitempty"`
+}
+
+func (b *APIBase) SetRawResponse(resp *http.Response) {
+	b.RawResponse = resp
 }
