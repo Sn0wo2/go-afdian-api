@@ -1,78 +1,24 @@
 package afdian
 
 import (
-	"bytes"
-	"encoding/json/v2"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Sn0wo2/go-afdian-api/internal/utils"
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
 )
 
-type rawResponder interface {
-	SetRawResponse(resp *http.Response)
-}
-
-// apiResponder is implemented by every API response payload: it stores the
-// raw *http.Response for later use and exposes the afdian-specific EC/EM
-// business code.
-type apiResponder interface {
-	rawResponder
-	payload.Checker
-}
-
-// processResponse reads the response body, restores it for later use,
-// unmarshals it into the payload and checks the HTTP status code as well as
-// the afdian-specific EC business code.
-func processResponse[P apiResponder](resp *http.Response, p P) error {
-	p.SetRawResponse(resp)
-
-	rawBody, readErr := io.ReadAll(resp.Body)
-	_ = resp.Body.Close()
-
-	resp.Body = io.NopCloser(bytes.NewReader(rawBody))
-
-	if readErr != nil {
-		return readErr
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	if len(rawBody) == 0 {
-		return errors.New("empty response")
-	}
-
-	if err := json.Unmarshal(rawBody, p); err != nil {
-		return err
-	}
-
-	if ec := p.GetEC(); ec != http.StatusOK {
-		return fmt.Errorf("afdian api error: ec=%d, em=%s", ec, p.GetEM())
-	}
-
-	return nil
-}
-
-func (c *Client) doRequest[T any, P interface {
-	*T
-	apiResponder
-}](endpoint string, params map[string]string) (*T, error) {
-	resp, err := c.Send(endpoint, params) //nolint:bodyclose // false positive: processResponse closes the body
+func (c *Client) doRequest[P utils.APIResponder](p P, endpoint string, params map[string]string) (P, error) {
+	resp, err := c.Send(endpoint, params) //nolint:bodyclose // false positive: utils.Response.Process closes the body
 	if err != nil {
-		return nil, err
+		return p, err
 	}
 
-	p := P(new(T))
-
-	if err := processResponse(resp, p); err != nil {
+	if err := (utils.Response{}).Process(resp, p); err != nil {
 		return p, err
 	}
 
@@ -80,32 +26,32 @@ func (c *Client) doRequest[T any, P interface {
 }
 
 func (c *Client) Ping() (*payload.Ping, error) {
-	return c.doRequest[payload.Ping, *payload.Ping]("/open/ping", map[string]string{"unix": strconv.FormatInt(time.Now().Unix(), 10)})
+	return c.doRequest(new(payload.Ping), "/open/ping", map[string]string{"unix": strconv.FormatInt(time.Now().Unix(), 10)})
 }
 
 func (c *Client) QueryRandomReply(outTradeNo string, outTradeNos ...string) (*payload.QueryRandomReply, error) {
-	return c.doRequest[payload.QueryRandomReply, *payload.QueryRandomReply]("/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(slices.Concat([]string{outTradeNo}, outTradeNos), ",")})
+	return c.doRequest(new(payload.QueryRandomReply), "/open/query-random-reply", map[string]string{"out_trade_no": strings.Join(slices.Concat([]string{outTradeNo}, outTradeNos), ",")})
 }
 
 func (c *Client) QueryOrder(page, perPage int, outTradeNo ...string) (*payload.QueryOrder, error) {
-	return c.doRequest[payload.QueryOrder, *payload.QueryOrder]("/open/query-order", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")})
+	return c.doRequest(new(payload.QueryOrder), "/open/query-order", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "out_trade_no": strings.Join(outTradeNo, ",")})
 }
 
 func (c *Client) QuerySponsor(page, perPage int, userIDs ...string) (*payload.QuerySponsor, error) {
-	return c.doRequest[payload.QuerySponsor, *payload.QuerySponsor]("/open/query-sponsor", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "user_id": strings.Join(userIDs, ",")})
+	return c.doRequest(new(payload.QuerySponsor), "/open/query-sponsor", map[string]string{"page": strconv.Itoa(page), "per_page": strconv.Itoa(perPage), "user_id": strings.Join(userIDs, ",")})
 }
 
 func (c *Client) QueryPlan(planID string) (*payload.QueryPlan, error) {
-	return c.doRequest[payload.QueryPlan, *payload.QueryPlan]("/open/query-plan", map[string]string{"plan_id": planID})
+	return c.doRequest(new(payload.QueryPlan), "/open/query-plan", map[string]string{"plan_id": planID})
 }
 
 func (c *Client) SendMsg(recipient, content string) (*payload.SendMsg, error) {
-	return c.doRequest[payload.SendMsg, *payload.SendMsg]("/open/send-msg", map[string]string{"recipient": recipient, "content": content})
+	return c.doRequest(new(payload.SendMsg), "/open/send-msg", map[string]string{"recipient": recipient, "content": content})
 }
 
 const (
-	UpdateRandomReplyTypeAppend    = "append"    // append to the existing random reply, afdian prepends a newline
-	UpdateRandomReplyTypeOverwrite = "overwrite" // overwrite the existing random reply
+	UpdateRandomReplyTypeAppend    = "append"
+	UpdateRandomReplyTypeOverwrite = "overwrite"
 )
 
 type UpdatePlanReplyOptions struct {
@@ -132,7 +78,7 @@ func (c *Client) UpdatePlanReply(opts UpdatePlanReplyOptions) (*payload.UpdatePl
 		return nil, fmt.Errorf("invalid UpdateRandomReplyType: %q", opts.UpdateRandomReplyType)
 	}
 
-	return c.doRequest[payload.UpdatePlanReply, *payload.UpdatePlanReply]("/open/update-plan-reply", map[string]string{
+	return c.doRequest(new(payload.UpdatePlanReply), "/open/update-plan-reply", map[string]string{
 		"plan_id":                  opts.PlanID,
 		"sku_id":                   opts.SkuID,
 		"auto_reply":               opts.AutoReply,

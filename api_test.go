@@ -75,7 +75,6 @@ func TestQuerySponsor(t *testing.T) {
 					Params string `json:"params"`
 				}
 				require.NoError(t, json.Unmarshal(body, &sent))
-				// params must be deterministic and lexically sorted (afdian sign requirement)
 				assert.JSONEq(t, `{"page":"1","per_page":"100","user_id":"user456"}`, sent.Params)
 
 				return &http.Response{
