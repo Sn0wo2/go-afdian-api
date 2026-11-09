@@ -1,4 +1,4 @@
-package afdian
+package utils
 
 import (
 	"strings"
@@ -10,9 +10,9 @@ import (
 func TestUserAgent(t *testing.T) {
 	t.Parallel()
 
-	ua := userAgent()
+	ua := UserAgent{}.String()
 
 	assert.True(t, strings.HasPrefix(ua, "go-afdian-api/"), "unexpected user agent: %s", ua)
 
-	assert.Equal(t, ua, userAgent())
+	assert.Equal(t, ua, UserAgent{}.String())
 }

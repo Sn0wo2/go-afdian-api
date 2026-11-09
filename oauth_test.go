@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Sn0wo2/go-afdian-api/internal/utils"
+	"github.com/parquet-go/bitpack/unsafecast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -94,12 +96,12 @@ func TestExchangeToken(t *testing.T) {
 					assert.Equal(t, http.MethodPost, req.Method)
 					assert.Equal(t, "https://afdian.com/api/oauth2/access_token", req.URL.String())
 					assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
-					assert.Equal(t, userAgent(), req.Header.Get("User-Agent"))
+					assert.Equal(t, utils.UserAgent{}.String(), req.Header.Get("User-Agent"))
 
 					body, err := io.ReadAll(req.Body)
 					require.NoError(t, err)
 
-					form, err := url.ParseQuery(string(body))
+					form, err := url.ParseQuery(unsafecast.String(body))
 					require.NoError(t, err)
 
 					assert.Equal(t, "authorization_code", form.Get("grant_type"))
@@ -142,7 +144,7 @@ func TestExchangeToken(t *testing.T) {
 					body, err := io.ReadAll(req.Body)
 					require.NoError(t, err)
 
-					form, err := url.ParseQuery(string(body))
+					form, err := url.ParseQuery(unsafecast.String(body))
 					require.NoError(t, err)
 
 					assert.Equal(t, "https://example.com/param", form.Get("redirect_uri"))

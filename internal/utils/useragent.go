@@ -1,10 +1,12 @@
-package afdian
+package utils
 
 import (
 	"path"
 	"runtime/debug"
 	"sync"
 )
+
+type UserAgent struct{}
 
 var userAgent = sync.OnceValue(func() string {
 	const modulePath = "github.com/Sn0wo2/go-afdian-api"
@@ -41,3 +43,7 @@ var userAgent = sync.OnceValue(func() string {
 
 	return name + "/" + v
 })
+
+func (UserAgent) String() string {
+	return userAgent()
+}

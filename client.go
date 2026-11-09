@@ -2,11 +2,16 @@ package afdian
 
 import (
 	"bytes"
+	"cmp"
 	"crypto/md5" //nolint:gosec
 	"encoding/json/v2"
 	"fmt"
+	"maps"
 	"net/http"
 	"time"
+
+	"github.com/Sn0wo2/go-afdian-api/internal/utils"
+	"github.com/parquet-go/bitpack/unsafecast"
 )
 
 type Client struct {
@@ -21,29 +26,20 @@ func NewClient(cfg *Config, hc ...*http.Client) *Client {
 		h = hc[0]
 	}
 
-	if cfg.BaseURL == "" {
-		cfg.BaseURL = "https://afdian.com/api"
+	c := *cfg
+	c.BaseURL = cmp.Or(c.BaseURL, "https://afdian.com/api")
+	c.UserAgent = cmp.Or(c.UserAgent, utils.UserAgent{}.String())
+
+	if c.WebHookListenAddr != "" && c.WebHookPath == "" {
+		c.WebHookPath = "/"
 	}
 
-	if cfg.UserAgent == "" {
-		cfg.UserAgent = userAgent()
-	}
-
-	if cfg.WebHookListenAddr != "" && cfg.WebHookPath == "" {
-		cfg.WebHookPath = "/"
-	}
-
-	return &Client{cfg: cfg, HTTP: h}
+	return &Client{cfg: &c, HTTP: h}
 }
 
 func (c *Client) Send(path string, params map[string]string) (*http.Response, error) {
-	filtered := make(map[string]string, len(params))
-
-	for k, v := range params {
-		if v != "" {
-			filtered[k] = v
-		}
-	}
+	filtered := maps.Clone(params)
+	maps.DeleteFunc(filtered, func(_, v string) bool { return v == "" })
 
 	// afdian computes the sign over the params JSON with keys sorted
 	// (doc: md5(token+请求数据按key排序拼接key和value)), and encoding/json/v2
@@ -56,9 +52,9 @@ func (c *Client) Send(path string, params map[string]string) (*http.Response, er
 
 	ts := time.Now().Unix()
 
-	paramsStr := ""
-	if len(filtered) > 0 {
-		paramsStr = string(paramsJSON)
+	paramsStr := unsafecast.String(paramsJSON)
+	if len(filtered) == 0 {
+		paramsStr = ""
 	}
 
 	body, err := json.Marshal(struct {
@@ -70,7 +66,7 @@ func (c *Client) Send(path string, params map[string]string) (*http.Response, er
 		UserID: c.cfg.UserID,
 		Params: paramsStr,
 		Ts:     ts,
-		Sign:   fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%sparams%sts%duser_id%s", c.cfg.APIToken, paramsStr, ts, c.cfg.UserID)))), //nolint:gosec
+		Sign:   fmt.Sprintf("%x", md5.Sum(unsafecast.Bytes(fmt.Sprintf("%sparams%sts%duser_id%s", c.cfg.APIToken, paramsStr, ts, c.cfg.UserID)))), //nolint:gosec
 	})
 	if err != nil {
 		return nil, err

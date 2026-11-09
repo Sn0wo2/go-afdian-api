@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/Sn0wo2/go-afdian-api/internal/utils"
+	"github.com/parquet-go/bitpack/unsafecast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// mockRoundTripper is a mock implementation of http.RoundTripper
 type mockRoundTripper struct {
 	roundTrip func(req *http.Request) (*http.Response, error)
 }
@@ -25,8 +26,6 @@ func TestNewClient(t *testing.T) {
 	t.Run("default http client", func(t *testing.T) {
 		t.Parallel()
 
-		// each subtest needs its own Config because NewClient mutates it,
-		// sharing one Config here would race between parallel subtests
 		client := NewClient(&Config{
 			UserID:   "test_user_id",
 			APIToken: "test_api_token",
@@ -98,7 +97,7 @@ func TestSend(t *testing.T) {
 						assert.Equal(t, http.MethodPost, req.Method)
 						assert.Equal(t, "https://afdian.com/api"+tt.path, req.URL.String())
 						assert.Equal(t, "application/json", req.Header.Get("Content-Type"))
-						assert.Equal(t, userAgent(), req.Header.Get("User-Agent"))
+						assert.Equal(t, utils.UserAgent{}.String(), req.Header.Get("User-Agent"))
 
 						return tt.mockResponse, tt.mockError
 					},
@@ -120,7 +119,7 @@ func TestSend(t *testing.T) {
 
 			body, readErr := io.ReadAll(resp.Body)
 			require.NoError(t, readErr)
-			assert.Equal(t, tt.expectedBody, string(body))
+			assert.Equal(t, tt.expectedBody, unsafecast.String(body))
 			assert.NoError(t, resp.Body.Close())
 		})
 	}

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Sn0wo2/go-afdian-api"
+	"github.com/parquet-go/bitpack/unsafecast"
 )
 
 func main() {
@@ -24,5 +25,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(string(body))
+	fmt.Println(unsafecast.String(body))
 }
