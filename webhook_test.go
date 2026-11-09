@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/iotest"
 
 	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
+	"github.com/parquet-go/bitpack/unsafecast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +39,7 @@ func TestWebHook_Start(t *testing.T) {
 	})
 }
 
-func TestWebHook_resolve(t *testing.T) {
+func TestWebHook_handle(t *testing.T) {
 	t.Parallel()
 
 	const (
@@ -57,7 +59,7 @@ func TestWebHook_resolve(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodPost, "/invalid", nil))
+		wh.handle(w, httptest.NewRequest(http.MethodPost, "/invalid", nil))
 
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
@@ -66,7 +68,7 @@ func TestWebHook_resolve(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodGet, path, nil))
+		wh.handle(w, httptest.NewRequest(http.MethodGet, path, nil))
 
 		assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
 	})
@@ -75,7 +77,7 @@ func TestWebHook_resolve(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodPost, path, nil))
+		wh.handle(w, httptest.NewRequest(http.MethodPost, path, nil))
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
@@ -84,7 +86,7 @@ func TestWebHook_resolve(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodPost, path, &errReader{}))
+		wh.handle(w, httptest.NewRequest(http.MethodPost, path, iotest.ErrReader(errors.New("read error"))))
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
@@ -93,7 +95,7 @@ func TestWebHook_resolve(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString("invalid json")))
+		wh.handle(w, httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString("invalid json")))
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
@@ -102,16 +104,17 @@ func TestWebHook_resolve(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString(`{"ec":200,"em":"ok","data":{"sign":"invalid"}}`)))
+		wh.handle(w, httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString(`{"ec":200,"em":"ok","data":{"sign":"invalid"}}`)))
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.JSONEq(t, `{"ec":400,"em":"signature verification failed"}`, w.Body.String())
 	})
 
 	t.Run("successful request", func(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		wh.resolve()(w, httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString(`{"ec":200,"em":"ok","data":{"type":"order","order":{"out_trade_no":"202106232138371083454010626","plan_title":"\u6d4b\u8bd5webhook","user_private_id":"345357fe8374811eaacee52540025c377","user_id":"adf397fe8374811eaacee52540025c377","plan_id":"a45353328af911eb973052540025c377","title":"\u8d5e\u52a9 5 = 5.00 x 1 \u6708","month":1,"total_amount":"5.00","show_amount":"5.00","status":2,"remark":"","redeem_id":"","product_type":1,"discount":"0.00","sku_detail":[{"sku_id":"2172ea4e3a2311edbcaa52540025c377","count":2,"name":"sku1","album_id":"","pic":"","stock":"","post_id":""},{"sku_id":"2172ea4e3a2311edbcaa52540025c378","count":3,"name":"sku2","album_id":"","pic":"","stock":"","post_id":""}],"address_person":"","address_phone":"","address_address":""},"sign":"EIUrs8kvspg0MqLvpODkQqpyQLppXCNGPDe8+vvfER9VCzGImjvVJiPUd2UWaGP3A9sS\/Ov+hFGwHAdvrm4i9Bte3kNQvwAXcaZx2g06JsngEr4MCe+nn0JHm+mtK9np8N5gJ3DC3GAs6l88SmTnMeJ4no+bPexfqPTYAMWs26e0mexjyLY+8f5l9Zv9rQAz+i\/kVjtGNgXFQF34+hAmfOoSxlTJth41XMeVLHxi46kHb+tJNGkU4vLrnMftos2yMzHO+rDP10N7o7VNGMO37aCWfJ+uwKgcXBo0xVbPPAVxHZ+GtOnlEpasINnmoJW7maaoOpRX+IUIxd\/U4gTnxA=="}}`)))
+		wh.handle(w, httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString(`{"ec":200,"em":"ok","data":{"type":"order","order":{"out_trade_no":"202106232138371083454010626","plan_title":"\u6d4b\u8bd5webhook","user_private_id":"345357fe8374811eaacee52540025c377","user_id":"adf397fe8374811eaacee52540025c377","plan_id":"a45353328af911eb973052540025c377","title":"\u8d5e\u52a9 5 = 5.00 x 1 \u6708","month":1,"total_amount":"5.00","show_amount":"5.00","status":2,"remark":"","redeem_id":"","product_type":1,"discount":"0.00","sku_detail":[{"sku_id":"2172ea4e3a2311edbcaa52540025c377","count":2,"name":"sku1","album_id":"","pic":"","stock":"","post_id":""},{"sku_id":"2172ea4e3a2311edbcaa52540025c378","count":3,"name":"sku2","album_id":"","pic":"","stock":"","post_id":""}],"address_person":"","address_phone":"","address_address":""},"sign":"EIUrs8kvspg0MqLvpODkQqpyQLppXCNGPDe8+vvfER9VCzGImjvVJiPUd2UWaGP3A9sS\/Ov+hFGwHAdvrm4i9Bte3kNQvwAXcaZx2g06JsngEr4MCe+nn0JHm+mtK9np8N5gJ3DC3GAs6l88SmTnMeJ4no+bPexfqPTYAMWs26e0mexjyLY+8f5l9Zv9rQAz+i\/kVjtGNgXFQF34+hAmfOoSxlTJth41XMeVLHxi46kHb+tJNGkU4vLrnMftos2yMzHO+rDP10N7o7VNGMO37aCWfJ+uwKgcXBo0xVbPPAVxHZ+GtOnlEpasINnmoJW7maaoOpRX+IUIxd\/U4gTnxA=="}}`)))
 
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
@@ -166,27 +169,21 @@ func TestWebHookWriteResponse(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		err := wh.writeResponse(w, &payload.WebHook{Base: payload.Base{EC: http.StatusOK, EM: "OK"}})
+		err := wh.writeResponse(w, http.StatusOK, &payload.WebHook{Base: payload.Base{EC: http.StatusOK, EM: "OK"}})
 		require.NoError(t, err)
 
 		body, err := io.ReadAll(w.Body)
 		require.NoError(t, err)
-		assert.JSONEq(t, `{"ec":200,"em":"OK"}`, string(body))
+		assert.JSONEq(t, `{"ec":200,"em":"OK"}`, unsafecast.String(body))
 	})
 
 	t.Run("write with status code", func(t *testing.T) {
 		t.Parallel()
 
 		w := httptest.NewRecorder()
-		err := wh.writeResponse(w, &payload.WebHook{Base: payload.Base{EC: http.StatusBadRequest, EM: "Bad Request"}})
+		err := wh.writeResponse(w, http.StatusBadRequest, &payload.WebHook{Base: payload.Base{EC: http.StatusBadRequest, EM: "Bad Request"}})
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
-}
-
-type errReader struct{}
-
-func (e *errReader) Read(p []byte) (n int, err error) {
-	return 0, errors.New("read error")
 }
