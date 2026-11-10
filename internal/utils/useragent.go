@@ -42,6 +42,7 @@ var userAgent = sync.OnceValue(func() string {
 			for _, dep := range info.Deps {
 				if hasPathPrefix(pkgPath, dep.Path) {
 					mod = dep
+
 					break
 				}
 			}
