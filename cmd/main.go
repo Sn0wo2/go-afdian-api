@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/Sn0wo2/go-afdian-api"
+	"github.com/Sn0wo2/go-afdian-api/v2"
 	"github.com/parquet-go/bitpack/unsafecast"
 )
 

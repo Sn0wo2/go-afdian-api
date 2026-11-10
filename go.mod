@@ -1,4 +1,4 @@
-module github.com/Sn0wo2/go-afdian-api
+module github.com/Sn0wo2/go-afdian-api/v2
 
 go 1.27
 

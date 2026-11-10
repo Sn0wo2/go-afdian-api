@@ -3,7 +3,7 @@ package afdian
 import (
 	"testing"
 
-	"github.com/Sn0wo2/go-afdian-api/internal/utils"
+	"github.com/Sn0wo2/go-afdian-api/v2/internal/utils"
 	"github.com/stretchr/testify/assert"
 )
 

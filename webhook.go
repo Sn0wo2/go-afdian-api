@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Sn0wo2/go-afdian-api/internal/webhook"
-	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
+	"github.com/Sn0wo2/go-afdian-api/v2/internal/webhook"
+	"github.com/Sn0wo2/go-afdian-api/v2/pkg/payload"
 )
 
 type CallBack func(p *payload.WebHook, errs ...error)

@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
+	"github.com/Sn0wo2/go-afdian-api/v2/pkg/payload"
 )
 
 type APIResponder interface {

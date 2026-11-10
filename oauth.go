@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Sn0wo2/go-afdian-api/internal/utils"
-	"github.com/Sn0wo2/go-afdian-api/pkg/payload"
+	"github.com/Sn0wo2/go-afdian-api/v2/internal/utils"
+	"github.com/Sn0wo2/go-afdian-api/v2/pkg/payload"
 )
 
 func (c *Client) AuthorizeURL(redirectURI, state string) (string, error) {

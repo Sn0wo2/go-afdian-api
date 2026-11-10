@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Sn0wo2/go-afdian-api/internal/utils"
+	"github.com/Sn0wo2/go-afdian-api/v2/internal/utils"
 	"github.com/parquet-go/bitpack/unsafecast"
 )
 
@@ -41,10 +41,6 @@ func (c *Client) Send(path string, params map[string]string) (*http.Response, er
 	filtered := maps.Clone(params)
 	maps.DeleteFunc(filtered, func(_, v string) bool { return v == "" })
 
-	// afdian computes the sign over the params JSON with keys sorted
-	// (doc: md5(token+请求数据按key排序拼接key和value)), and encoding/json/v2
-	// traverses maps non-deterministically by default, so force deterministic
-	// (lexicographically sorted) encoding.
 	paramsJSON, err := json.Marshal(filtered, json.Deterministic(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal params: %w", err)

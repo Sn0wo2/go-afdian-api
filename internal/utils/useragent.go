@@ -1,47 +1,65 @@
 package utils
 
 import (
-	"path"
+	"reflect"
 	"runtime/debug"
+	"strconv"
+	"strings"
 	"sync"
 )
 
 type UserAgent struct{}
 
 var userAgent = sync.OnceValue(func() string {
-	const modulePath = "github.com/Sn0wo2/go-afdian-api"
+	moduleName := func(p string) string {
+		segs := strings.Split(p, "/")
 
-	name := path.Base(modulePath)
+		for i, seg := range segs {
+			if len(seg) > 1 && seg[0] == 'v' {
+				if n, err := strconv.Atoi(seg[1:]); err == nil && n >= 2 {
+					segs = segs[:i]
 
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		return name + "/dev"
+					break
+				}
+			}
+		}
+
+		return segs[len(segs)-1]
 	}
 
-	v := info.Main.Version
-	if info.Main.Path != modulePath {
-		v = ""
+	hasPathPrefix := func(s, prefix string) bool {
+		return s == prefix || strings.HasPrefix(s, prefix+"/")
+	}
 
-		for _, dep := range info.Deps {
-			if dep.Path != modulePath {
-				continue
+	pkgPath := reflect.TypeOf(UserAgent{}).PkgPath()
+
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		mod := &info.Main
+		if !hasPathPrefix(pkgPath, mod.Path) {
+			mod = nil
+
+			for _, dep := range info.Deps {
+				if hasPathPrefix(pkgPath, dep.Path) {
+					mod = dep
+					break
+				}
+			}
+		}
+
+		if mod != nil {
+			v := mod.Version
+			if mod.Replace != nil {
+				v = mod.Replace.Version
 			}
 
-			if dep.Replace != nil {
-				v = dep.Replace.Version
-			} else {
-				v = dep.Version
+			if v != "" && v != "(devel)" {
+				return moduleName(mod.Path) + "/" + v
 			}
-
-			break
 		}
 	}
 
-	if v == "" || v == "(devel)" {
-		return name + "/dev"
-	}
-
-	return name + "/" + v
+	return moduleName(pkgPath) + "/dev"
 })
 
 func (UserAgent) String() string {
