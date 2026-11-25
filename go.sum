@@ -1,5 +1,7 @@
 github.com/parquet-go/bitpack v1.1.0 h1:b80hfKZwIJ3Ku684xJSEj/9G0tywQPKOtmTV8si30mo=
 github.com/parquet-go/bitpack v1.1.0/go.mod h1:XnVk9TH+O40eOOmvpAVZ7K2ocQFrQwysLMnc6M/8lgs=
+github.com/parquet-go/bitpack v1.1.1 h1:mygqlCBk/rnvtqqP5Oy7IkIPAxZ3bDM7V4yce/ms6pE=
+github.com/parquet-go/bitpack v1.1.1/go.mod h1:XnVk9TH+O40eOOmvpAVZ7K2ocQFrQwysLMnc6M/8lgs=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
